@@ -1,3 +1,4 @@
+import 'package:flurec/util/Constant.dart';
 import 'package:flurec/view/screen/BaseScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -24,12 +25,19 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
   }
 
   Widget getAppBar() {
-    return AppBar();
+    return AppBar(
+      title: Text(
+        Constant.APP_NAME,
+        style: TextStyle(color: Constant.COLOR_TEXT_LIGHT),
+      ),
+    );
   }
 
   Widget getBody() {
     return SafeArea(
-      child: Container(),
+      child: Container(
+        color: Constant.COLOR_PRIMARY_LIGHT,
+      ),
     );
   }
 

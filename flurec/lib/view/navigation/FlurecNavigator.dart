@@ -1,6 +1,6 @@
 import 'package:flurec/view/screen/audio_detail/AudioDetailScreen.dart';
 import 'package:flurec/view/screen/audio_list/AudioListScreen.dart';
-import 'package:flurec/view/screen/home/HomeScreen.dart';
+import 'package:flurec/view/screen/home/AudioRecordScreen.dart';
 import 'package:flurec/view/screen/settings/SettingsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -14,15 +14,15 @@ class FlurecNavigator {
   }
 
   void navigateToHome(BuildContext context, [bool clearStack = true, Function() onNavigateBack]) {
-    _navigateToScreen(context, HomeScreen(), clearStack, onNavigateBack);
+    _navigateToScreen(context, AudioRecordScreen(), clearStack, onNavigateBack);
   }
 
   void navigateToAudioList(BuildContext context, [bool clearStack = true, Function() onNavigateBack]) {
     _navigateToScreen(context, AudioListScreen(), clearStack, onNavigateBack);
   }
 
-  void navigateToAudioDetail(BuildContext context, [bool clearStack = true, Function() onNavigateBack]) {
-    _navigateToScreen(context, AudioDetailScreen(), clearStack, onNavigateBack);
+  void navigateToAudioDetail(BuildContext context, String filePath, [bool clearStack = true, Function() onNavigateBack]) {
+    _navigateToScreen(context, AudioDetailScreen(filePath), clearStack, onNavigateBack);
   }
 
   void navigateToSettings(BuildContext context, [bool clearStack = true, Function() onNavigateBack]) {

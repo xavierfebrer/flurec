@@ -12,9 +12,12 @@ class Constant {
   static const Color COLOR_PRIMARY = Color(0xFFF44336);
   static const Color COLOR_PRIMARY_LIGHT = Color(0xFFFFCDD2);
   static const Color COLOR_PRIMARY_DARK = Color(0xFFD32F2F);
-  static const Color COLOR_ACCENT = Color(0xFF448AFF);
+  static const Color COLOR_ACCENT = Color(0xFF03A9F4);
   static const Color COLOR_TEXT = Color(0xFF212121);
   static const Color COLOR_TEXT_LIGHT = Color(0xFFFFFFFF);
   static const Color COLOR_TEXT_LIGHT_2 = Color(0xFF757575);
   static const Color COLOR_DIVIDER = Color(0xFFBDBDBD);
+  static const double PADDING_HOME_BORDER = 8.0;
+  static const String FOLDER_NAME_RECORDINGS = "recordings";
+  static const String FILE_NAME_RECORDING_BASE = "rec";
 }

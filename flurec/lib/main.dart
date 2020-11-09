@@ -1,6 +1,6 @@
 import 'package:flurec/util/Constant.dart';
 import 'package:flurec/util/Util.dart';
-import 'package:flurec/view/screen/home/HomeScreen.dart';
+import 'package:flurec/view/screen/home/AudioRecordScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -21,7 +21,7 @@ class FluRecApp extends StatelessWidget {
         accentColor: Constant.COLOR_ACCENT,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeScreen(),
+      home: AudioRecordScreen(),
     );
   }
 }

@@ -129,15 +129,15 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
     if (index == 0) {
       return "Encoder: ${AppUtil.getCodecName(settings.currentEncoderCodec)}";
     } else if (index == 1) {
-      return "Auto play when possible";
+      return "Auto play in Audio Detail";
     } else if (index == 2) {
       return "Confirm delete";
     } else if (index == 3) {
       return "Confirm rename";
     } else if (index == 4) {
-      return "Show delete success information";
+      return "Show delete information";
     } else if (index == 5) {
-      return "Show rename success information";
+      return "Show rename information";
     } else
       return "";
   }

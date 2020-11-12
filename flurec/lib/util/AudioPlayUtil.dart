@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -28,26 +27,25 @@ class AudioPlayUtil {
     return false;
   }
 
-  static Future<Duration> startPlayer(FlutterSoundPlayer player, String completeFilePathWithExtension,
-      {Codec codec,
-      Uint8List fromDataBuffer,
-      int sampleRate, // Used only when Codec == Codec.pcm16
-      VoidCallback onFinish}) async {
-    try {
-      if (codec == Codec.pcm16 && sampleRate == null) throw Exception("sampleRate must not be null when using codec: $codec");
-      //if (!await player.isDecoderSupported(codec)) throw Exception("decoder not supported for codec: $codec");
-      Duration duration = await player.startPlayer(
-        fromURI: completeFilePathWithExtension,
-        codec: codec,
-        fromDataBuffer: fromDataBuffer,
-        sampleRate: sampleRate,
-        whenFinished: () {
-          if (onFinish != null) onFinish();
-        },
-      );
-      return duration;
-    } catch (e) {}
-    return null;
+  static Future<Duration> startPlayer(FlutterSoundPlayer player, String completeFilePathWithExtension, List<Codec> codecs, {VoidCallback onFinish}) async {
+    Duration duration;
+    for (Codec codec in codecs) {
+      try {
+        duration = await player.startPlayer(
+          fromURI: completeFilePathWithExtension,
+          codec: codec,
+          whenFinished: () {
+            if (onFinish != null) onFinish();
+          },
+        );
+      } catch (e) {
+        duration = null;
+      }
+      if (duration != null) {
+        break;
+      }
+    }
+    return duration;
   }
 
   static Future<bool> stopPlayer(FlutterSoundPlayer player) async {
@@ -74,17 +72,11 @@ class AudioPlayUtil {
     return false;
   }
 
-  static Future<FlutterSoundPlayer> disposePlayer(FlutterSoundPlayer player) async {
+  static Future<bool> disposePlayer(FlutterSoundPlayer player) async {
     try {
       await player?.closeAudioSession();
+      return true;
     } catch (e) {}
-  }
-
-  static String getExtensionForCodec(Codec codec, {bool withStartingDot = true}) {
-    if (codec == Codec.aacADTS) {
-      return (withStartingDot ? "." : "") + "aac";
-    } else {
-      return null;
-    }
+    return false;
   }
 }

@@ -1,7 +1,10 @@
+import 'package:flurec/model/Settings.dart';
+import 'package:flurec/util/AppUtil.dart';
 import 'package:flurec/util/AudioRecordUtil.dart';
 import 'package:flurec/util/Constant.dart';
 import 'package:flurec/util/DebugUtil.dart';
 import 'package:flurec/util/FileUtil.dart';
+import 'package:flurec/util/ViewUtil.dart';
 import 'package:flurec/view/navigation/FlurecNavigator.dart';
 import 'package:flurec/view/screen/BaseScreen.dart';
 import 'package:flutter/material.dart';
@@ -29,24 +32,14 @@ class RecordStateInfo {
 class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   RecordStateInfo recordStateInfo;
   FlutterSoundRecorder recorder;
+  Settings settings;
 
   @override
   void initState() {
     super.initState();
     recordStateInfo = RecordStateInfo(RecordState.NOT_INIT, "Start Ok");
-    recorder = FlutterSoundRecorder();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AudioRecordUtil.openAudioSession(recorder).then((result) {
-        if (result) {
-          DebugUtil.log("${Constant.LOG_TAG}", "openAudioSession OK");
-          setState(() {
-            recordStateInfo = RecordStateInfo(RecordState.INIT, "Start Ok");
-          });
-        } else {
-          onFailedToOpenRecorder();
-        }
-        return result;
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await initializeRecorder();
     });
   }
 
@@ -96,133 +89,191 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   }
 
   Widget getBody() {
-    Widget button;
-    if (recordStateInfo.recordState == RecordState.INIT) {
-      button = getRecordButton();
-    } else if (recordStateInfo.recordState == RecordState.RECORDING) {
-      button = getStopButton();
-    } else {
-      button = Container();
-    }
-    Column column = Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [button, Text("${recordStateInfo.info}")],
-    );
     return SafeArea(
       child: Container(
-        alignment: Alignment.center,
-        child: Center(
-          child: column,
-        ),
+        child: getBodyWithoutData(),
       ),
     );
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    onStopSelected();
+  Widget getBodyWithoutData() {
+    return ViewUtil.getLoadingWidget(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+      settings = data;
+      DebugUtil.log("${Constant.LOG_TAG}", "settings: $settings");
+      return getBodyWithData();
+    });
   }
 
-  @override
-  void dispose() {
-    AudioRecordUtil.disposeRecorder(recorder);
-    recorder = null;
-    super.dispose();
+  Widget getBodyWithData() {
+    List<Widget> widgetsBody = [];
+    widgetsBody.add(Container(
+      alignment: Alignment.bottomCenter,
+      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+      child: Text("${recordStateInfo.info}"),
+    ));
+    if (recordStateInfo.recordState == RecordState.INIT) {
+      widgetsBody.add(getRecordButton());
+    } else if (recordStateInfo.recordState == RecordState.RECORDING) {
+      widgetsBody.add(getStopButton());
+    }
+    return Stack(
+      children: widgetsBody,
+    );
   }
 
   Widget getRecordButton() {
     return Container(
-      width: 100,
-      height: 100,
-      child: OutlinedButton(
-        child: Icon(
-          Icons.mic_rounded,
-          size: 48.0,
-          color: Constant.COLOR_PRIMARY,
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+      child: SizedBox(
+        width: Constant.SIZE_BUTTON_RECORD,
+        height: Constant.SIZE_BUTTON_RECORD,
+        child: OutlinedButton(
+          style: ViewUtil.getPlayerButtonStyle(false),
+          child: Icon(
+            Icons.mic_rounded,
+            size: 96.0,
+          ),
+          onPressed: () {
+            onRecordSelected();
+          },
         ),
-        onPressed: () {
-          onRecordSelected();
-        },
       ),
     );
   }
 
   Widget getStopButton() {
     return Container(
-      width: 100,
-      height: 100,
-      child: OutlinedButton(
-        child: Icon(
-          Icons.stop_rounded,
-          size: 48.0,
-          color: Constant.COLOR_ACCENT,
-        ),
-        onPressed: () {
-          onStopSelected();
-        },
-      ),
-    );
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+        child: SizedBox(
+          width: Constant.SIZE_BUTTON_RECORD,
+          height: Constant.SIZE_BUTTON_RECORD,
+          child: OutlinedButton(
+            style: ViewUtil.getPlayerButtonStyle(true),
+            child: Icon(
+              Icons.stop_rounded,
+              size: 96.0,
+            ),
+            onPressed: () {
+              onStopSelected();
+            },
+          ),
+        ));
   }
 
-  void onRecordSelected() async {
-    DebugUtil.log("${Constant.LOG_TAG}", "onRecordSelected()");
-    Codec codec = Codec.aacADTS;
-    String extension = AudioRecordUtil.getExtensionForCodec(codec);
-    if (extension == null) {
-      onFailedToStartRecorder();
-      return;
-    }
-    String filePath = await FileUtil.getNewRecordingFilePath(extension);
-    bool result = await AudioRecordUtil.startRecorder(recorder, filePath, codec: codec);
-    if (result) {
-      DebugUtil.log("${Constant.LOG_TAG}", "startRecorder OK");
-      setState(() {
-        recordStateInfo = RecordStateInfo(RecordState.RECORDING, "Pressed record Ok");
-      });
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      onResume();
     } else {
-      onFailedToStartRecorder();
+      onPause();
     }
   }
 
-  void onStopSelected() async {
-    DebugUtil.log("${Constant.LOG_TAG}", "onStopSelected()");
+  Future<void> onResume() async {
+    await initializeRecorder();
+    await onRefreshData();
+  }
+
+  Future<void> onPause() async {
+    await onStopSelected();
+    await disposeRecorder();
+  }
+
+  @override
+  void dispose() {
+    disposeRecorder();
+    super.dispose();
+  }
+
+  Future<bool> initializeRecorder() async {
+    await disposeRecorder();
+    recorder = FlutterSoundRecorder();
+    if (await AudioRecordUtil.openAudioSession(recorder)) {
+      setState(() {
+        recordStateInfo = RecordStateInfo(RecordState.INIT, "Start Ok");
+      });
+      return true;
+    } else {
+      await onFailedToOpenRecorder();
+    }
+    return false;
+  }
+
+  Future<bool> disposeRecorder() async {
+    bool result = await AudioRecordUtil.disposeRecorder(recorder);
+    recorder = null;
+    return result;
+  }
+
+  Future<void> onRecordSelected() async {
+    Codec selectedCodec = settings.currentEncoderCodec;
+    TargetPlatform platform = Theme.of(context).platform;
+    var availablePlatformCodecs = await AppUtil.getAvailableEncoderCodecs(platform);
+    String extension = AppUtil.getExtensionForCodec(selectedCodec);
+    String filePath = await FileUtil.getNewRecordingFilePath(extension);
+    DebugUtil.log("${Constant.LOG_TAG}",
+        "onRecordSelected ${recorder.isInited} codec: $selectedCodec, extension: $extension, filePath: $filePath, availableCodecs ($platform): ${availablePlatformCodecs.join(", ")}");
+    if (extension == null) {
+      onFailedToStartRecorder("File extension not available for selected codec: $selectedCodec");
+    } else if (!(availablePlatformCodecs).contains(selectedCodec)) {
+      onFailedToStartRecorder("The selected codec: $selectedCodec, is not supported. Supported encoder codecs: ${availablePlatformCodecs.join(", ")}");
+    } else {
+      bool result = await AudioRecordUtil.startRecorder(recorder, filePath, codec: selectedCodec);
+      if (result) {
+        setState(() {
+          recordStateInfo = RecordStateInfo(RecordState.RECORDING, "Recording sound.");
+        });
+      } else {
+        onFailedToStartRecorder("Cannot record sound.");
+      }
+    }
+  }
+
+  Future<void> onStopSelected() async {
     bool result = await AudioRecordUtil.stopRecorder(recorder);
     if (result) {
-      DebugUtil.log("${Constant.LOG_TAG}", "stopRecorder OK");
       setState(() {
         recordStateInfo = RecordStateInfo(RecordState.INIT, "Pressed stop Ok");
       });
     } else {
-      DebugUtil.log("${Constant.LOG_TAG}", "stopRecorder Fail");
       setState(() {
         recordStateInfo = RecordStateInfo(RecordState.INIT, "stopRecorder onFail");
       });
     }
   }
 
-  void onFailedToOpenRecorder() async {
-    DebugUtil.log("${Constant.LOG_TAG}", "onFailedToOpenRecorder()");
+  Future<void> onFailedToOpenRecorder() async {
     setState(() {
       recordStateInfo = RecordStateInfo(RecordState.NOT_INIT, "openAudioSession onFail");
     });
   }
 
-  void onFailedToStartRecorder() async {
-    DebugUtil.log("${Constant.LOG_TAG}", "onFailedToStartRecorder()");
+  Future<void> onFailedToStartRecorder(String message) async {
     setState(() {
-      recordStateInfo = RecordStateInfo(RecordState.INIT, "startRecorder onFail");
+      recordStateInfo = RecordStateInfo(RecordState.INIT, message);
     });
   }
 
-  void onShowRecordingsSelected() async {
+  Future<void> onShowRecordingsSelected() async {
     onStopSelected();
-    FlurecNavigator.getInstance().navigateToAudioList(context, false);
+    FlurecNavigator.getInstance().navigateToAudioList(context, false, () {
+      onStopSelected();
+      onRefreshData();
+    });
   }
 
-  void onSettingsSelected() async {
+  Future<void> onSettingsSelected() async {
     onStopSelected();
-    FlurecNavigator.getInstance().navigateToSettings(context, false);
+    FlurecNavigator.getInstance().navigateToSettings(context, false, () {
+      onStopSelected();
+      onRefreshData();
+    });
+  }
+
+  Future<void> onRefreshData() async {
+    setState(() {});
   }
 }

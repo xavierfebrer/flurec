@@ -1,6 +1,7 @@
 import 'package:flurec/view/screen/audio_detail/AudioDetailScreen.dart';
 import 'package:flurec/view/screen/audio_list/AudioListScreen.dart';
 import 'package:flurec/view/screen/home/AudioRecordScreen.dart';
+import 'package:flurec/view/screen/settings/SettingsEncoderScreen.dart';
 import 'package:flurec/view/screen/settings/SettingsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -25,8 +26,16 @@ class FlurecNavigator {
     _navigateToScreen(context, AudioDetailScreen(filePath), clearStack, onNavigateBack);
   }
 
+  void navigateToAudioDetailReplaced(BuildContext context, String filePath, [Function() onNavigateBack]) {
+    _navigateToScreenReplaced(context, AudioDetailScreen(filePath), onNavigateBack);
+  }
+
   void navigateToSettings(BuildContext context, [bool clearStack = true, Function() onNavigateBack]) {
     _navigateToScreen(context, SettingsScreen(), clearStack, onNavigateBack);
+  }
+
+  void navigateToSettingsEncoder(BuildContext context, [bool clearStack = true, Function() onNavigateBack]) {
+    _navigateToScreen(context, SettingsEncoderScreen(), clearStack, onNavigateBack);
   }
 
   void _navigateToScreen(BuildContext context, Widget screen, [bool clearStack = true, Function() onNavigateBack]) {
@@ -40,5 +49,12 @@ class FlurecNavigator {
         if (onNavigateBack != null) onNavigateBack();
       });
     }
+  }
+
+  void _navigateToScreenReplaced(BuildContext context, Widget screen, [Function() onNavigateBack]) {
+    var route = MaterialPageRoute(builder: (context) => screen);
+    Navigator.of(context).pushReplacement(route).then((value) {
+      if (onNavigateBack != null) onNavigateBack();
+    });
   }
 }

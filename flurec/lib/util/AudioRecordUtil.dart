@@ -32,8 +32,8 @@ class AudioRecordUtil {
       int audioFlags = outputToSpeaker,
       AudioDevice device = AudioDevice.speaker}) async {
     try {
-      Map<PermissionGroup, PermissionStatus> status = await PermissionHandler().requestPermissions([PermissionGroup.microphone, PermissionGroup.speech]);
-      if (status[PermissionGroup.microphone] != PermissionStatus.granted) throw RecordingPermissionException("Microphone permission not granted");
+      Map<Permission, PermissionStatus> status = await [Permission.microphone, Permission.speech].request();
+      if (status[Permission.microphone] != PermissionStatus.granted) throw RecordingPermissionException("Microphone permission not granted");
       if (!await recorder.isEncoderSupported(codec)) throw Exception("encoder not supported for codec: $codec");
       await recorder.startRecorder(
         codec: codec,
@@ -73,17 +73,11 @@ class AudioRecordUtil {
     return false;
   }
 
-  static Future<void> disposeRecorder(FlutterSoundRecorder recorder) async {
+  static Future<bool> disposeRecorder(FlutterSoundRecorder recorder) async {
     try {
       await recorder?.closeAudioSession();
+      return true;
     } catch (e) {}
-  }
-
-  static String getExtensionForCodec(Codec codec, {bool withStartingDot = true}) {
-    if (codec == Codec.aacADTS) {
-      return (withStartingDot ? "." : "") + "aac";
-    } else {
-      return null;
-    }
+    return false;
   }
 }

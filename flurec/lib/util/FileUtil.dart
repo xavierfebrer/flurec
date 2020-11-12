@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flurec/util/Constant.dart';
-import 'package:flurec/util/DebugUtil.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -12,12 +11,9 @@ class FileUtil {
 
   static Future<List<File>> getFiles(Directory fileDirectory) async {
     fileDirectory = await createDirs(fileDirectory);
-    DebugUtil.log("${Constant.LOG_TAG}", "getFilenames() fileDirectory: $fileDirectory exists: ${await fileDirectory.exists()}");
     if (await fileDirectory.exists()) {
       List<FileSystemEntity> files = await fileDirectory.list().toList();
-      DebugUtil.log("${Constant.LOG_TAG}", "getFilenames() files: $files");
       List<File> map = files.map((FileSystemEntity file) => File(file.path)).toList();
-      DebugUtil.log("${Constant.LOG_TAG}", "getFilenames() map: $map");
       return map;
     }
     return List<File>();
@@ -67,42 +63,34 @@ class FileUtil {
 
   static Future<Directory> getAppDirectory() async {
     Directory appBaseDir = await createDirs(await getApplicationDocumentsDirectory());
-    DebugUtil.log("${Constant.LOG_TAG}", "getAppDirectory() appBaseDir: $appBaseDir exists: ${await appBaseDir.exists()}");
     return appBaseDir != null ? await createDirs(Directory(path.join(appBaseDir.path, Constant.APP_NAME))) ?? null : null;
   }
 
   static Future<Directory> getRecordingsDirectory() async {
     Directory appDirectory = await getAppDirectory();
-    DebugUtil.log("${Constant.LOG_TAG}", "getRecordingsDirectory() appDirectory: $appDirectory exists: ${await appDirectory.exists()}");
     return appDirectory != null ? await createDirs(Directory(path.join(appDirectory.path, Constant.FOLDER_NAME_RECORDINGS))) ?? null : null;
   }
 
   static Future<List<File>> getRecordingsFiles({bool sortedByFilename = false, bool sortedAscending = true}) async {
     Directory recordingsDirectory = await getRecordingsDirectory();
-    DebugUtil.log("${Constant.LOG_TAG}", "getRecordingsFiles() recordingsDirectory: $recordingsDirectory exists: ${await recordingsDirectory.exists()}");
     List<File> list = await getFiles(recordingsDirectory) ?? List<String>();
     if (sortedByFilename) sortByFilename(list, sortedAscending: sortedAscending);
-    DebugUtil.log("${Constant.LOG_TAG}", "list: $list");
     return list;
   }
 
   static Future<List<String>> getRecordingsFilenames() async {
     Directory recordingsDirectory = await getRecordingsDirectory();
-    DebugUtil.log("${Constant.LOG_TAG}", "getRecordingsFiles() recordingsDirectory: $recordingsDirectory exists: ${await recordingsDirectory.exists()}");
     List<String> list = await getFilenames(recordingsDirectory);
-    DebugUtil.log("${Constant.LOG_TAG}", "list: $list");
     return recordingsDirectory != null ? list : List<String>();
   }
 
   static Future<String> getNewRecordingFilePath(String extension) async {
     if (extension == null) extension = "";
     Directory recordingsDirectory = await getRecordingsDirectory();
-    DebugUtil.log("${Constant.LOG_TAG}", "getNewRecordingFilePath() recordingsDirectory: $recordingsDirectory exists: ${await recordingsDirectory.exists()}");
     DateTime now = DateTime.now();
     String filenamePathDate =
         "${minZeroes(4, now.year)}_${minZeroes(2, now.month)}_${minZeroes(2, now.day)}_${minZeroes(2, now.hour)}_${minZeroes(2, now.minute)}_${minZeroes(2, now.second)}";
     String newFilePath = path.join(recordingsDirectory.path, "${Constant.FILE_NAME_RECORDING_BASE}_$filenamePathDate$extension");
-    DebugUtil.log("${Constant.LOG_TAG}", "getNewRecordingFilePath() newFilePath: $newFilePath");
     return newFilePath;
   }
 
@@ -126,6 +114,10 @@ class FileUtil {
     return getExtensionByPath(file.path);
   }
 
+  static String getPathByFilePath(String filePath) {
+    return filePath != null ? path.dirname(filePath) : "";
+  }
+
   static String getPath(FileSystemEntity file) {
     return file != null ? path.dirname(file.path) : "";
   }
@@ -145,5 +137,26 @@ class FileUtil {
       finalValue = addFront ? "0$finalValue" : "${finalValue}0";
     }
     return finalValue;
+  }
+
+  static Future<bool> fileExists(String newFilePath) async {
+    return await File(newFilePath).exists();
+  }
+
+  static Future<bool> renameFileByFilePath(String existingFilePath, String newFilePath) async {
+    File originFile = File(existingFilePath);
+    if (await originFile.exists()) {
+      File newTargetFile = await originFile.copy(newFilePath);
+      bool copyCreated = await newTargetFile.exists();
+      if(!copyCreated) return false;
+      bool deletedOriginFile = await deleteFile(originFile);
+      // TODO if(!deletedOriginFile) return false;
+      return await newTargetFile.exists();
+    }
+    return false;
+  }
+
+  static String joinByPathFilename(String dirPath, String filename) {
+    return path.join(dirPath, filename);
   }
 }

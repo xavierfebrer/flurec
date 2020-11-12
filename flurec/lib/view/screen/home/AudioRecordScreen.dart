@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flurec/util/Util.dart';
 import 'package:flurec/model/Settings.dart';
 import 'package:flurec/util/AppUtil.dart';
 import 'package:flurec/util/AudioRecordUtil.dart';
@@ -46,6 +47,10 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    DebugUtil.log("$Constant.LOG_TAG", "COLOR_PRIMARY_LIGHT ${Constant.COLOR_PRIMARY_LIGHT.toHex()}");
+    DebugUtil.log("$Constant.LOG_TAG", "COLOR_PRIMARY_DARK ${Constant.COLOR_PRIMARY_DARK.toHex()}");
+    DebugUtil.log("$Constant.LOG_TAG", "COLOR_ACCENT_LIGHT ${Constant.COLOR_ACCENT_LIGHT.toHex()}");
+    DebugUtil.log("$Constant.LOG_TAG", "COLOR_ACCENT_DARK ${Constant.COLOR_ACCENT_DARK.toHex()}");
     return WillPopScope(
       onWillPop: () => Future(() {
         onStopSelected();

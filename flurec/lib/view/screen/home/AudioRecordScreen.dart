@@ -211,15 +211,10 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   }
 
   Future<void> onRecordSelected() async {
-    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected()");
     Codec selectedCodec = settings.currentEncoderCodec;
-    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 2");
     TargetPlatform platform = Theme.of(context).platform;
-    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 3");
     var availablePlatformCodecs = await AppUtil.getAvailableEncoderCodecs(platform);
-    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 4");
     String extension = AppUtil.getExtensionForCodec(selectedCodec);
-    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 5");
     String filePath = await FileUtil.getNewRecordingFilePath(extension);
     DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 6");
     DebugUtil.log("${Constant.LOG_TAG}",

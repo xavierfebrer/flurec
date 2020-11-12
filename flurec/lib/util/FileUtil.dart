@@ -71,10 +71,10 @@ class FileUtil {
     return appDirectory != null ? await createDirs(Directory(path.join(appDirectory.path, Constant.FOLDER_NAME_RECORDINGS))) ?? null : null;
   }
 
-  static Future<List<File>> getRecordingsFiles({bool sortedByFilename = false, bool sortedAscending = true}) async {
+  static Future<List<File>> getRecordingsFiles({FileSort fileSort = FileSort.DateDescending}) async {
     Directory recordingsDirectory = await getRecordingsDirectory();
     List<File> list = await getFiles(recordingsDirectory) ?? List<String>();
-    if (sortedByFilename) sortByFilename(list, sortedAscending: sortedAscending);
+    sort(list, fileSort: fileSort);
     return list;
   }
 
@@ -87,11 +87,16 @@ class FileUtil {
   static Future<String> getNewRecordingFilePath(String extension) async {
     if (extension == null) extension = "";
     Directory recordingsDirectory = await getRecordingsDirectory();
-    DateTime now = DateTime.now();
-    String filenamePathDate =
-        "${minZeroes(4, now.year)}_${minZeroes(2, now.month)}_${minZeroes(2, now.day)}_${minZeroes(2, now.hour)}_${minZeroes(2, now.minute)}_${minZeroes(2, now.second)}";
-    String newFilePath = path.join(recordingsDirectory.path, "${Constant.FILE_NAME_RECORDING_BASE}_$filenamePathDate$extension");
-    return newFilePath;
+    int index = 1;
+    File file;
+    while (file == null || await file.exists()) {
+      file = File(path.join(recordingsDirectory.path, "${Constant.FILE_NAME_RECORDING_BASE}$index$extension"));
+      if(!await file.exists()){
+        break;
+      }
+      index++;
+    }
+    return file.path;
   }
 
   static String getNameByPath(String filePath, {bool withExtension = true}) {
@@ -119,24 +124,47 @@ class FileUtil {
   }
 
   static String getPath(FileSystemEntity file) {
-    return file != null ? path.dirname(file.path) : "";
+    return getPathByFilePath(file.path);
   }
 
-  static void sortByFilename(List<File> list, {bool sortedAscending = true}) {
-    list.sort((file1, file2) {
-      return sortedAscending
-          ? getName(file1, withExtension: true).compareTo(getName(file2, withExtension: true))
-          : getName(file2, withExtension: true).compareTo(getName(file1, withExtension: true));
-    });
+  static FileStat getFileStat(FileSystemEntity file) {
+    return file != null ? file.statSync() : null;
   }
 
-  static minZeroes(int desiredValueLength, int value, {bool addFront: true}) {
-    String valueStr = "$value";
-    String finalValue = valueStr;
-    while (finalValue.length < desiredValueLength) {
-      finalValue = addFront ? "0$finalValue" : "${finalValue}0";
+  static FileStat getFileStatByFilePath(String filePath) {
+    return getFileStat(File(filePath));
+  }
+
+  static Future<void> sortByFilePath(List<String> listFilePaths, {FileSort fileSort = FileSort.DateAscending}) async {
+    sort(listFilePaths.map((filePath) => File(filePath)), fileSort: fileSort);
+  }
+
+  static void sort(List<File> list, {FileSort fileSort = FileSort.DateAscending}) {
+    if (fileSort != null) {
+      if (fileSort == FileSort.NameDescending || fileSort == FileSort.NameAscending) {
+        list.sort((file1, file2) {
+          return fileSort == FileSort.NameAscending
+              ? getName(file1, withExtension: true).compareTo(getName(file2, withExtension: true))
+              : getName(file2, withExtension: true).compareTo(getName(file1, withExtension: true));
+        });
+      } else if (fileSort == FileSort.DateDescending) {
+        list.sort((file1, file2) {
+          return getFileStat(file1).changed.isAfter(getFileStat(file2).changed) ? -1 : 1;
+        });
+      } else if (fileSort == FileSort.DateAscending) {
+        list.sort((file1, file2) {
+          return getFileStat(file1).changed.isBefore(getFileStat(file2).changed) ? -1 : 1;
+        });
+      } else if (fileSort == FileSort.SizeDescending) {
+        list.sort((file1, file2) {
+          return getFileStat(file1).size < getFileStat(file2).size ? -1 : 1;
+        });
+      } else if (fileSort == FileSort.SizeAscending) {
+        list.sort((file1, file2) {
+          return getFileStat(file1).size > getFileStat(file2).size ? -1 : 1;
+        });
+      }
     }
-    return finalValue;
   }
 
   static Future<bool> fileExists(String newFilePath) async {
@@ -148,7 +176,7 @@ class FileUtil {
     if (await originFile.exists()) {
       File newTargetFile = await originFile.copy(newFilePath);
       bool copyCreated = await newTargetFile.exists();
-      if(!copyCreated) return false;
+      if (!copyCreated) return false;
       bool deletedOriginFile = await deleteFile(originFile);
       // TODO if(!deletedOriginFile) return false;
       return await newTargetFile.exists();
@@ -159,4 +187,13 @@ class FileUtil {
   static String joinByPathFilename(String dirPath, String filename) {
     return path.join(dirPath, filename);
   }
+}
+
+enum FileSort {
+  NameAscending,
+  NameDescending,
+  DateAscending,
+  DateDescending,
+  SizeAscending,
+  SizeDescending,
 }

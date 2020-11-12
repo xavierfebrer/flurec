@@ -26,19 +26,25 @@ class ViewUtil {
         return active ? Constant.ELEVATION_BUTTON_PLAYER_ON : Constant.ELEVATION_BUTTON_PLAYER_OFF;
       }),
       textStyle: null,
-      backgroundColor: MaterialStateProperty.resolveWith((states) => Constant.COLOR_PRIMARY_LIGHT),
-      foregroundColor: MaterialStateProperty.resolveWith((states) => getColors(active, states.contains(MaterialState.pressed))),
-      shadowColor: MaterialStateProperty.resolveWith((states) => getColors(active, states.contains(MaterialState.pressed))),
+      backgroundColor: MaterialStateProperty.resolveWith((states) {
+        return getBackgroundColors(active, states.contains(MaterialState.pressed));
+      }),
+      foregroundColor: MaterialStateProperty.resolveWith((states) {
+        return getForegroundColors(active, states.contains(MaterialState.pressed));
+      }),
+      shadowColor: MaterialStateProperty.resolveWith((states) {
+        return getShadowColors(active, states.contains(MaterialState.pressed));
+      }),
       overlayColor: MaterialStateProperty.resolveWith((states) {
         double opacity;
         if (states.contains(MaterialState.focused)) {
-          opacity = 0.15;
+          opacity = 0.125;
         } else if (states.contains(MaterialState.hovered)) {
           opacity = 0.1;
         } else {
-          opacity = 0.2;
+          opacity = 0.15;
         }
-        return getColors(active, states.contains(MaterialState.pressed), opacity: opacity);
+        return getForegroundColors(active, states.contains(MaterialState.pressed), opacity: opacity);
       }),
     );
   }
@@ -54,29 +60,64 @@ class ViewUtil {
           : interacted
               ? Constant.BORDER_SIZE_BUTTON_PLAYER_OFF_PRESSED
               : Constant.BORDER_SIZE_BUTTON_PLAYER_OFF,
-      color: getColors(active, interacted),
+      color: getBorderColors(active, interacted),
       style: BorderStyle.solid,
     );
   }
 
-  static Color getColors(bool active, bool interacted, {double opacity = 1.0}) {
+  static Color getForegroundColors(bool active, bool interacted, {double opacity = 1.0}) {
+    return (active
+        ? interacted
+        ? Constant.COLOR_PRIMARY
+        : Constant.COLOR_PRIMARY_LIGHT
+        : interacted
+        ? Constant.COLOR_ACCENT_DARK
+        : Constant.COLOR_ACCENT)
+        .withOpacity(opacity);
+  }
+
+  static Color getBackgroundColors(bool active, bool interacted, {double opacity = 1.0}) {
     return (active
         ? interacted
         ? Constant.COLOR_PRIMARY_DARK
         : Constant.COLOR_PRIMARY
         : interacted
-        ? Constant.COLOR_ACCENT
-        : Constant.COLOR_ACCENT_DARK).withOpacity(opacity);
+        ? Constant.COLOR_PRIMARY_LIGHT
+        : Constant.COLOR_PRIMARY_LIGHT)
+        .withOpacity(opacity);
   }
 
-  static Widget getLoadingWidget<T>(Future<T> futureToLoad, {T initialData, LoadingActionEmpty<T> onLoadEmpty, LoadingActionData<T> onLoadData, LoadingActionError<T> onLoadError}){
+  static Color getBorderColors(bool active, bool interacted, {double opacity = 1.0}) {
+    return (active
+        ? interacted
+        ? Constant.COLOR_PRIMARY
+        : Constant.COLOR_PRIMARY_LIGHT
+        : interacted
+        ? Constant.COLOR_ACCENT_DARK
+        : Constant.COLOR_ACCENT)
+        .withOpacity(opacity);
+  }
+
+  static Color getShadowColors(bool active, bool interacted, {double opacity = 1.0}) {
+    return (active
+        ? interacted
+        ? Constant.COLOR_PRIMARY_DARK
+        : Constant.COLOR_PRIMARY
+        : interacted
+        ? Constant.COLOR_ACCENT_DARK
+        : Constant.COLOR_ACCENT)
+        .withOpacity(opacity);
+  }
+
+  static Widget getLoadingWidget<T>(Future<T> futureToLoad,
+      {T initialData, LoadingActionEmpty<T> onLoadEmpty, LoadingActionData<T> onLoadData, LoadingActionError<T> onLoadError}) {
     return FutureBuilder<T>(
       initialData: initialData,
       future: futureToLoad,
       builder: (BuildContext context, AsyncSnapshot<T> snapshot) {
-        if(snapshot.hasError){
+        if (snapshot.hasError) {
           return onLoadError != null ? onLoadError(context, snapshot.error) : Center(child: Text("Error"));
-        } else if(snapshot.hasData){
+        } else if (snapshot.hasData) {
           return onLoadData != null ? onLoadData(context, snapshot.data, snapshot.connectionState != ConnectionState.done) : Center(child: Text("${snapshot.data}"));
         }
         return onLoadEmpty != null ? onLoadEmpty(context) : Center(child: CircularProgressIndicator());
@@ -84,7 +125,7 @@ class ViewUtil {
     );
   }
 }
+
 typedef LoadingActionEmpty<T> = Widget Function(BuildContext context);
 typedef LoadingActionData<T> = Widget Function(BuildContext context, Object data, bool isInitialData);
 typedef LoadingActionError<T> = Widget Function(BuildContext context, T data);
-

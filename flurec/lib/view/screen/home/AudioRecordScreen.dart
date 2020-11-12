@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flurec/model/Settings.dart';
 import 'package:flurec/util/AppUtil.dart';
 import 'package:flurec/util/AudioRecordUtil.dart';
@@ -23,10 +24,10 @@ enum RecordState {
 }
 
 class RecordStateInfo {
-  RecordState recordState;
+  RecordState state;
   String info;
 
-  RecordStateInfo(this.recordState, this.info);
+  RecordStateInfo(this.state, this.info);
 }
 
 class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
@@ -99,7 +100,6 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   Widget getBodyWithoutData() {
     return ViewUtil.getLoadingWidget(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
-      DebugUtil.log("${Constant.LOG_TAG}", "settings: $settings");
       return getBodyWithData();
     });
   }
@@ -108,12 +108,12 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
     List<Widget> widgetsBody = [];
     widgetsBody.add(Container(
       alignment: Alignment.bottomCenter,
-      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
-      child: Text("${recordStateInfo.info}"),
+      padding: EdgeInsets.fromLTRB(Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW, 50),
+      child: AutoSizeText("${recordStateInfo.info}"),
     ));
-    if (recordStateInfo.recordState == RecordState.INIT) {
+    if (recordStateInfo.state == RecordState.INIT) {
       widgetsBody.add(getRecordButton());
-    } else if (recordStateInfo.recordState == RecordState.RECORDING) {
+    } else if (recordStateInfo.state == RecordState.RECORDING) {
       widgetsBody.add(getStopButton());
     }
     return Stack(
@@ -134,8 +134,9 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
             Icons.mic_rounded,
             size: 96.0,
           ),
-          onPressed: () {
-            onRecordSelected();
+          onPressed: () async {
+            DebugUtil.log("${Constant.LOG_TAG}","getRecordButton() onPressed");
+            await onRecordSelected();
           },
         ),
       ),
@@ -155,8 +156,9 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
               Icons.stop_rounded,
               size: 96.0,
             ),
-            onPressed: () {
-              onStopSelected();
+            onPressed: () async {
+              DebugUtil.log("${Constant.LOG_TAG}","getRecordButton() onPressed");
+              await onStopSelected();
             },
           ),
         ));
@@ -193,7 +195,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
     recorder = FlutterSoundRecorder();
     if (await AudioRecordUtil.openAudioSession(recorder)) {
       setState(() {
-        recordStateInfo = RecordStateInfo(RecordState.INIT, "Start Ok");
+        recordStateInfo = RecordStateInfo(RecordState.INIT, "");
       });
       return true;
     } else {
@@ -209,11 +211,17 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   }
 
   Future<void> onRecordSelected() async {
+    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected()");
     Codec selectedCodec = settings.currentEncoderCodec;
+    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 2");
     TargetPlatform platform = Theme.of(context).platform;
+    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 3");
     var availablePlatformCodecs = await AppUtil.getAvailableEncoderCodecs(platform);
+    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 4");
     String extension = AppUtil.getExtensionForCodec(selectedCodec);
+    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 5");
     String filePath = await FileUtil.getNewRecordingFilePath(extension);
+    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 6");
     DebugUtil.log("${Constant.LOG_TAG}",
         "onRecordSelected ${recorder.isInited} codec: $selectedCodec, extension: $extension, filePath: $filePath, availableCodecs ($platform): ${availablePlatformCodecs.join(", ")}");
     if (extension == null) {
@@ -224,7 +232,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
       bool result = await AudioRecordUtil.startRecorder(recorder, filePath, codec: selectedCodec);
       if (result) {
         setState(() {
-          recordStateInfo = RecordStateInfo(RecordState.RECORDING, "Recording sound.");
+          recordStateInfo = RecordStateInfo(RecordState.RECORDING, "");
         });
       } else {
         onFailedToStartRecorder("Cannot record sound.");
@@ -236,18 +244,18 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
     bool result = await AudioRecordUtil.stopRecorder(recorder);
     if (result) {
       setState(() {
-        recordStateInfo = RecordStateInfo(RecordState.INIT, "Pressed stop Ok");
+        recordStateInfo = RecordStateInfo(RecordState.INIT, "");
       });
     } else {
       setState(() {
-        recordStateInfo = RecordStateInfo(RecordState.INIT, "stopRecorder onFail");
+        recordStateInfo = RecordStateInfo(RecordState.INIT, "Error");
       });
     }
   }
 
   Future<void> onFailedToOpenRecorder() async {
     setState(() {
-      recordStateInfo = RecordStateInfo(RecordState.NOT_INIT, "openAudioSession onFail");
+      recordStateInfo = RecordStateInfo(RecordState.NOT_INIT, "Error");
     });
   }
 

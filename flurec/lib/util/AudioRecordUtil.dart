@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:screen/screen.dart';
 
 class AudioRecordUtil {
   static Future<bool> openAudioSession(FlutterSoundRecorder recorder,
@@ -44,12 +45,15 @@ class AudioRecordUtil {
         bitRate: bitRate,
         audioSource: AudioSource.defaultSource,
       );
+      Screen.keepOn(true);
       return true;
     } catch (e) {}
+    Screen.keepOn(false);
     return false;
   }
 
   static Future<bool> stopRecorder(FlutterSoundRecorder recorder) async {
+    Screen.keepOn(false);
     try {
       await recorder.stopRecorder();
       return true;
@@ -60,12 +64,15 @@ class AudioRecordUtil {
   static Future<bool> resumeRecorder(FlutterSoundRecorder recorder, {VoidCallback onSuccess, VoidCallback onFail}) async {
     try {
       await recorder.resumeRecorder();
+      Screen.keepOn(true);
       return true;
     } catch (e) {}
+    Screen.keepOn(false);
     return false;
   }
 
   static Future<bool> pauseRecorder(FlutterSoundRecorder recorder) async {
+    Screen.keepOn(false);
     try {
       await recorder.pauseRecorder();
       return true;
@@ -74,6 +81,7 @@ class AudioRecordUtil {
   }
 
   static Future<bool> disposeRecorder(FlutterSoundRecorder recorder) async {
+    Screen.keepOn(false);
     try {
       await recorder?.closeAudioSession();
       return true;

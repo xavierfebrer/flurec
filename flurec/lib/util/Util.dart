@@ -1,12 +1,8 @@
-import 'dart:io';
 import 'dart:math';
 
+import 'package:filesize/filesize.dart' as filesize;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'Constant.dart';
 
 class Util {
   static Random _random = Random();
@@ -24,7 +20,9 @@ class Util {
   static MaterialColor createMaterialColor(Color color) {
     List strengths = <double>[.05];
     Map swatch = <int, Color>{};
-    final int r = color.red, g = color.green, b = color.blue;
+    final int r = color.red,
+        g = color.green,
+        b = color.blue;
 
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
@@ -55,4 +53,57 @@ class Util {
   static double getLinearValueFromPercent(double start, double end, timePercent) {
     return start + ((end - start) * timePercent);
   }
+
+  static minZeroes(int desiredValueLength, int value, {bool addFront: true}) {
+    String valueStr = "$value";
+    String finalValue = valueStr;
+    while (finalValue.length < desiredValueLength) {
+      finalValue = addFront ? "0$finalValue" : "${finalValue}0";
+    }
+    return finalValue;
+  }
+
+  static String getFormattedDateTime(DateTime dateTime, {
+    bool addDate = true,
+    bool addTime = true,
+    String separatorDate = "/",
+    String separatorTime = ":",
+    String separatorTimeMS = ".",
+    String separatorDateTime = " ",
+    bool includeMS = false,
+    bool replaceDateByTodayOrYesterday = false,
+  }) {
+    assert(dateTime != null);
+    String date;
+    if (addDate) {
+      if (replaceDateByTodayOrYesterday) {
+        DateTime now = DateTime.now();
+        DateTime today = new DateTime(now.year, now.month, now.day);
+        DateTime yesterday = new DateTime(now.year, now.month, now.day).subtract(Duration(days: 1));
+        if(dateTime.year == today.year && dateTime.month == today.month && dateTime.day == today.day){
+          date = "Today";
+        } else if(dateTime.year == yesterday.year && dateTime.month == yesterday.month && dateTime.day == yesterday.day){
+          date = "Yesterday";
+        } else {
+          date = "${Util.minZeroes(4, dateTime.year)}$separatorDate${Util.minZeroes(2, dateTime.month)}$separatorDate${Util.minZeroes(2, dateTime.day)}";
+        }
+      } else {
+        date = "${Util.minZeroes(4, dateTime.year)}$separatorDate${Util.minZeroes(2, dateTime.month)}$separatorDate${Util.minZeroes(2, dateTime.day)}";
+      }
+    } else {
+      date = "";
+    }
+    String time;
+    if (addTime) {
+      time = "${Util.minZeroes(2, dateTime.hour)}$separatorTime${Util.minZeroes(2, dateTime.minute)}$separatorTime${Util.minZeroes(2, dateTime.second)}${(includeMS
+          ? "$separatorTimeMS${Util.minZeroes(4, dateTime.millisecond)}"
+          : "")}";
+    } else {
+      time = "";
+    }
+    separatorDateTime = date.isNotEmpty && time.isNotEmpty ? separatorDateTime : "";
+    return "$date$separatorDateTime$time";
+  }
+
+  static String getFormattedSize(int size) => filesize.filesize(size);
 }

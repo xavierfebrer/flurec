@@ -26,8 +26,8 @@ class FlurecNavigator {
     _navigateToScreen(context, AudioDetailScreen(filePath), clearStack, onNavigateBack);
   }
 
-  void navigateToAudioDetailReplaced(BuildContext context, String filePath, [Function() onNavigateBack]) {
-    _navigateToScreenReplaced(context, AudioDetailScreen(filePath), onNavigateBack);
+  void navigateToAudioDetailReplaced(BuildContext context, String filePath) {
+    _navigateToScreenReplaced(context, AudioDetailScreen(filePath));
   }
 
   void navigateToSettings(BuildContext context, [bool clearStack = true, Function() onNavigateBack]) {
@@ -51,10 +51,8 @@ class FlurecNavigator {
     }
   }
 
-  void _navigateToScreenReplaced(BuildContext context, Widget screen, [Function() onNavigateBack]) {
+  void _navigateToScreenReplaced(BuildContext context, Widget screen) {
     var route = MaterialPageRoute(builder: (context) => screen);
-    Navigator.of(context).pushReplacement(route).then((value) {
-      if (onNavigateBack != null) onNavigateBack();
-    });
+    Navigator.of(context).pushReplacement(route);
   }
 }

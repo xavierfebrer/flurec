@@ -1,26 +1,26 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flurec/model/Settings.dart';
 import 'package:flurec/util/AppUtil.dart';
 import 'package:flurec/util/AudioPlayUtil.dart';
 import 'package:flurec/util/Constant.dart';
-import 'package:flurec/util/DebugUtil.dart';
 import 'package:flurec/util/FileUtil.dart';
 import 'package:flurec/util/PopupUtil.dart';
 import 'package:flurec/util/ShareUtil.dart';
+import 'package:flurec/util/Util.dart';
 import 'package:flurec/util/ViewUtil.dart';
+import 'package:flurec/view/navigation/FlurecNavigator.dart';
 import 'package:flurec/view/screen/BaseScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 
 class AudioDetailScreen extends BaseScreen {
-  String filePath;
+  final String filePath;
 
   AudioDetailScreen(this.filePath, {Key key}) : super(key: key);
 
   @override
-  _AudioDetailScreenState createState() => _AudioDetailScreenState(filePath, (String newFilePath) {
-        filePath = newFilePath;
-      });
+  _AudioDetailScreenState createState() => _AudioDetailScreenState(filePath);
 }
 
 enum PlayState {
@@ -30,27 +30,26 @@ enum PlayState {
 }
 
 class PlayStateInfo {
-  PlayState playState;
+  PlayState state;
   String info;
 
-  PlayStateInfo(this.playState, this.info);
+  PlayStateInfo(this.state, this.info);
 }
 
 class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
-  String filePath;
-  final Function(String newFilePath) onFilePathChanged;
+  final String filePath;
   PlayStateInfo playStateInfo;
   FlutterSoundPlayer player;
   String newEditNameText;
   Settings settings;
   bool playedFirstTime;
 
-  _AudioDetailScreenState(this.filePath, this.onFilePathChanged) : super();
+  _AudioDetailScreenState(this.filePath) : super();
 
   @override
   void initState() {
     super.initState();
-    playStateInfo = PlayStateInfo(PlayState.NOT_INIT, "Start Ok");
+    playStateInfo = PlayStateInfo(PlayState.NOT_INIT, "");
     player = FlutterSoundPlayer();
     newEditNameText = "";
     playedFirstTime = false;
@@ -75,6 +74,33 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   }
 
   Widget getAppBar() {
+    List<Widget> appBarWidgets = [];
+    appBarWidgets.add(IconButton(
+      icon: Icon(
+        Icons.edit_rounded,
+      ),
+      onPressed: () {
+        onEditSelected(context);
+      },
+    ));
+    if (Constant.ENABLE_SHARE) {
+      appBarWidgets.add(IconButton(
+        icon: Icon(
+          Icons.share_rounded,
+        ),
+        onPressed: () {
+          onShareSelected(context);
+        },
+      ));
+    }
+    appBarWidgets.add(IconButton(
+      icon: Icon(
+        Icons.delete_rounded,
+      ),
+      onPressed: () {
+        onDeleteSelected(context);
+      },
+    ));
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
@@ -84,38 +110,13 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
         },
       ),
       title: Text(
-        "${FileUtil.getNameByPath(filePath)}",
+        "Audio Detail",
         style: TextStyle(color: Constant.COLOR_TEXT_LIGHT),
       ),
       automaticallyImplyLeading: true,
       centerTitle: false,
       iconTheme: IconThemeData(color: Constant.COLOR_PRIMARY_LIGHT),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.edit_rounded,
-          ),
-          onPressed: () {
-            onEditSelected(context);
-          },
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.share_rounded,
-          ),
-          onPressed: () {
-            onShareSelected(context);
-          },
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.delete_rounded,
-          ),
-          onPressed: () {
-            onDeleteSelected(context);
-          },
-        ),
-      ],
+      actions: appBarWidgets,
     );
   }
 
@@ -134,32 +135,70 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
         playedFirstTime = true;
         onPlaySelected();
       }
-      DebugUtil.log("${Constant.LOG_TAG}", "settings: $settings");
       return getBodyWithData();
     });
   }
 
   Widget getBodyWithData() {
-    Widget button;
-    if (playStateInfo.playState == PlayState.INIT) {
-      button = getPlayButton();
-    } else if (playStateInfo.playState == PlayState.PLAYING) {
-      button = getStopButton();
-    } else {
-      button = Container();
-    }
-    Column column = Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [button, Text("${playStateInfo.info}")],
-    );
-    return SafeArea(
-      child: Container(
-        alignment: Alignment.center,
-        child: Center(
-          child: column,
+    List<Widget> widgetsBody = [];
+    widgetsBody.add(Container(
+      alignment: Alignment.topCenter,
+      padding: EdgeInsets.fromLTRB(Constant.PADDING_IN_VIEW, 60, Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW),
+      child: AutoSizeText(
+        "${FileUtil.getNameByPath(filePath)}",
+        style: TextStyle(
+          fontSize: 26.0,
         ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
+    ));
+    widgetsBody.add(Container(
+      alignment: Alignment.bottomCenter,
+      padding: EdgeInsets.fromLTRB(Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW, 50),
+      child: AutoSizeText("${playStateInfo.info}"),
+    ));
+    widgetsBody.add(Container(
+      alignment: Alignment.bottomLeft,
+      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+      child: Text(
+        "${Util.getFormattedSize(FileUtil.getFileStatByFilePath(filePath).size)}",
+        maxLines: 1,
+        textAlign: TextAlign.end,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(color: Constant.COLOR_TEXT_DARK_2, fontStyle: FontStyle.italic),
+      ),
+    ));
+    widgetsBody.add(Container(
+      alignment: Alignment.bottomRight,
+      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+      child: Text(
+        "${Util.getFormattedDateTime(
+          FileUtil.getFileStatByFilePath(filePath).changed,
+          separatorDate: "/",
+          separatorTime: ":",
+          separatorDateTime: " ",
+          includeMS: false,
+          replaceDateByTodayOrYesterday: true,
+        )}",
+        maxLines: 1,
+        textAlign: TextAlign.end,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(color: Constant.COLOR_TEXT_DARK_2, fontStyle: FontStyle.italic),
+      ),
+    ));
+    if (playStateInfo.state == PlayState.INIT) {
+      widgetsBody.add(getPlayButton());
+    } else if (playStateInfo.state == PlayState.PLAYING) {
+      widgetsBody.add(getStopButton());
+    }
+    if (playStateInfo.state == PlayState.INIT) {
+      widgetsBody.add(getPlayButton());
+    } else if (playStateInfo.state == PlayState.PLAYING) {
+      widgetsBody.add(getStopButton());
+    }
+    return Stack(
+      children: widgetsBody,
     );
   }
 
@@ -235,7 +274,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     player = FlutterSoundPlayer();
     if (await AudioPlayUtil.openAudioSession(player)) {
       setState(() {
-        playStateInfo = PlayStateInfo(PlayState.INIT, "Start Ok");
+        playStateInfo = PlayStateInfo(PlayState.INIT, "");
       });
       return true;
     } else {
@@ -269,10 +308,10 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     });
     if (duration != null) {
       setState(() {
-        playStateInfo = PlayStateInfo(PlayState.PLAYING, "Playing sound, duration: $duration");
+        playStateInfo = PlayStateInfo(PlayState.PLAYING, "");
       });
     } else {
-      onFailedToStartPlayer("Cannot play sound, duration is not available.");
+      onFailedToStartPlayer("Failed to play sound.");
     }
   }
 
@@ -280,18 +319,18 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     bool result = await AudioPlayUtil.stopPlayer(player);
     if (result) {
       setState(() {
-        playStateInfo = PlayStateInfo(PlayState.INIT, "Pressed stop Ok");
+        playStateInfo = PlayStateInfo(PlayState.INIT, "");
       });
     } else {
       setState(() {
-        playStateInfo = PlayStateInfo(PlayState.INIT, "stopPlayer onFail");
+        playStateInfo = PlayStateInfo(PlayState.INIT, "Error");
       });
     }
   }
 
   Future<void> onFailedToOpenPlayer() async {
     setState(() {
-      playStateInfo = PlayStateInfo(PlayState.NOT_INIT, "openAudioSession onFail");
+      playStateInfo = PlayStateInfo(PlayState.NOT_INIT, "Error");
     });
   }
 
@@ -302,17 +341,17 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   }
 
   Future<void> onEditSelected(BuildContext context) async {
-    onStopSelected();
-    onRenameStart(context);
+    await onStopSelected();
+    await onRenameStart(context);
   }
 
   Future<void> onShareSelected(BuildContext context) async {
-    onStopSelected();
+    await onStopSelected();
     await ShareUtil.shareFile(context, this.filePath);
   }
 
   Future<void> onDeleteSelected(BuildContext context) async {
-    onStopSelected();
+    await onStopSelected();
     Function() onConfirmAction = () async {
       if (await FileUtil.deleteFileByPath(filePath)) {
         Navigator.of(context).pop();
@@ -337,13 +376,13 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     }
   }
 
-  void onRenameStart(BuildContext context) {
+  Future<void> onRenameStart(BuildContext context) async {
     newEditNameText = "";
-    PopupUtil.showPopupEdit(context, "Edit file name", "${FileUtil.getNameByPath(filePath, withExtension: false)}", "Rename", "Cancel",
+    await PopupUtil.showPopupEdit(context, "Edit file name", "${FileUtil.getNameByPath(filePath, withExtension: false)}", "Rename", "Cancel",
         textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
         textStyleCancelButtonText: TextStyle(color: Theme.of(context).accentColor),
-        onConfirm: () {
-          onRenameConfirmed();
+        onConfirm: () async {
+          await onRenameConfirmed();
         },
         onCancel: () {},
         onChanged: (String newText) {
@@ -394,9 +433,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   }
 
   Future<void> changeFilePath(String newFilePath) async {
-    filePath = newFilePath;
-    if (onFilePathChanged != null) await onFilePathChanged(filePath);
-    await onRefreshData();
+    FlurecNavigator.getInstance().navigateToAudioDetailReplaced(context, newFilePath);
   }
 
   Future<void> onRefreshData() async {

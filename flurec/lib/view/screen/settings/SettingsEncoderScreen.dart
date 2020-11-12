@@ -91,9 +91,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
       future: AppUtil.getAvailableEncoderCodecs(Theme.of(context).platform),
       builder: (BuildContext context, AsyncSnapshot<List<Codec>> snapshot) {
         if (!snapshot.hasData) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+          return Center(child: CircularProgressIndicator());
         } else {
           availablePlatformCodecs = snapshot.data;
           return Scrollbar(
@@ -107,8 +105,8 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
                 return ListTile(
                   leading: getleadingListTile(index),
                   title: Text(AppUtil.getCodecName(availablePlatformCodecs[index])),
-                  onTap: () {
-                    onSettingTapped(context, index);
+                  onTap: () async {
+                    await onSettingTapped(context, index);
                   },
                   isThreeLine: false,
                 );
@@ -138,7 +136,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
   Future<void> onSettingTapped(BuildContext context, int index) async {
     settings.currentEncoderCodec = availablePlatformCodecs[index];
     await AppUtil.setSettingsModel(settings);
-    Navigator.of(context).pop();
+    await onRefreshData();
   }
 
   Widget getleadingListTile(int index) {
@@ -152,10 +150,10 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
     PopupUtil.showPopup(context, "Restore Encoder Settings", "Do you want to restore the default settings?", "Restore", "Cancel",
         textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
         textStyleCancelButtonText: TextStyle(color: Theme.of(context).accentColor), onConfirm: () async {
-          Settings defaultSettings = Settings();
-          settings.currentEncoderCodec = defaultSettings.currentEncoderCodec;
-          await AppUtil.setSettingsModel(settings);
-          await onRefreshData();
-        });
+      Settings defaultSettings = Settings();
+      settings.currentEncoderCodec = defaultSettings.currentEncoderCodec;
+      await AppUtil.setSettingsModel(settings);
+      await onRefreshData();
+    });
   }
 }

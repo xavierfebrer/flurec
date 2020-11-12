@@ -18,6 +18,8 @@ dependencies:
   path_provider: ^1.6.24
   flutter_sound: ^6.4.2+1
   share: ^0.6.5+4
+  filesize: ^1.0.4
+  screen: ^0.0.5
 
 dev_dependencies:
   flutter_test:

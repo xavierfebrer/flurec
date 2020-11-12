@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:screen/screen.dart';
 
 class AudioPlayUtil {
   static Future<bool> openAudioSession(
@@ -45,10 +46,12 @@ class AudioPlayUtil {
         break;
       }
     }
+    Screen.keepOn(duration != null);
     return duration;
   }
 
   static Future<bool> stopPlayer(FlutterSoundPlayer player) async {
+    Screen.keepOn(false);
     try {
       await player.stopPlayer();
       return true;
@@ -57,6 +60,7 @@ class AudioPlayUtil {
   }
 
   static Future<bool> resumePlayer(FlutterSoundPlayer player) async {
+    Screen.keepOn(false);
     try {
       await player.resumePlayer();
       return true;
@@ -65,6 +69,7 @@ class AudioPlayUtil {
   }
 
   static Future<bool> pausePlayer(FlutterSoundPlayer player) async {
+    Screen.keepOn(false);
     try {
       await player.pausePlayer();
       return true;
@@ -73,6 +78,7 @@ class AudioPlayUtil {
   }
 
   static Future<bool> disposePlayer(FlutterSoundPlayer player) async {
+    Screen.keepOn(false);
     try {
       await player?.closeAudioSession();
       return true;

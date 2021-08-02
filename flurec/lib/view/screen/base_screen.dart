@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 abstract class BaseScreen extends StatefulWidget {
-  const BaseScreen({Key key}) : super(key: key);
+  const BaseScreen({Key? key}) : super(key: key);
 
   @override
   BaseScreenState createState();
@@ -13,7 +13,7 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> with Widge
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
     super.initState();
   }
 
@@ -27,7 +27,7 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> with Widge
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 }

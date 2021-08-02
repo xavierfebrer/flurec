@@ -1,4 +1,4 @@
-import 'package:flurec/util/Constant.dart';
+import 'package:flurec/util/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -110,15 +110,15 @@ class ViewUtil {
   }
 
   static Widget getLoadingWidget<T>(Future<T> futureToLoad,
-      {T initialData, LoadingActionEmpty<T> onLoadEmpty, LoadingActionData<T> onLoadData, LoadingActionError<T> onLoadError}) {
+      {T? initialData, LoadingActionEmpty<T>? onLoadEmpty, LoadingActionData<T>? onLoadData, LoadingActionError<T>? onLoadError}) {
     return FutureBuilder<T>(
       initialData: initialData,
       future: futureToLoad,
       builder: (BuildContext context, AsyncSnapshot<T> snapshot) {
         if (snapshot.hasError) {
           return onLoadError != null ? onLoadError(context, snapshot.error) : Center(child: Text("Error"));
-        } else if (snapshot.hasData) {
-          return onLoadData != null ? onLoadData(context, snapshot.data, snapshot.connectionState != ConnectionState.done) : Center(child: Text("${snapshot.data}"));
+        } else if (snapshot.hasData && snapshot.data != null) {
+          return onLoadData != null ? onLoadData(context, snapshot.data!, snapshot.connectionState != ConnectionState.done) : Center(child: Text("${snapshot.data}"));
         }
         return onLoadEmpty != null ? onLoadEmpty(context) : Center(child: CircularProgressIndicator());
       },
@@ -127,5 +127,5 @@ class ViewUtil {
 }
 
 typedef LoadingActionEmpty<T> = Widget Function(BuildContext context);
-typedef LoadingActionData<T> = Widget Function(BuildContext context, Object data, bool isInitialData);
-typedef LoadingActionError<T> = Widget Function(BuildContext context, T data);
+typedef LoadingActionData<T> = Widget Function(BuildContext context, T data, bool isInitialData);
+typedef LoadingActionError<T> = Widget Function(BuildContext context, Object? error);

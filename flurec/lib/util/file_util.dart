@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flurec/util/Constant.dart';
+import 'package:flurec/util/constant.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -16,11 +16,11 @@ class FileUtil {
       List<File> map = files.map((FileSystemEntity file) => File(file.path)).toList();
       return map;
     }
-    return List<File>();
+    return [];
   }
 
   static Future<Directory> createDirs(Directory dir, {bool recursive: true}) async {
-    if (!await dir?.exists()) {
+    if (!await dir.exists()) {
       try {
         return await dir.create(recursive: recursive);
       } catch (e) {}
@@ -33,7 +33,7 @@ class FileUtil {
   }
 
   static Future<File> createFile(File file, {bool recursive: true}) async {
-    if (!await file?.exists()) {
+    if (!await file.exists()) {
       try {
         return await file.create(recursive: recursive);
       } catch (e) {}
@@ -42,10 +42,10 @@ class FileUtil {
   }
 
   static Future<bool> deleteFile(File fileToDelete) async {
-    if (await fileToDelete?.exists()) {
+    if (await fileToDelete.exists()) {
       try {
-        File deletedFile = await fileToDelete.delete();
-        return !await deletedFile?.exists();
+        FileSystemEntity deletedFile = await fileToDelete.delete();
+        return !await deletedFile.exists();
       } catch (e) {}
     }
     return false;
@@ -63,17 +63,17 @@ class FileUtil {
 
   static Future<Directory> getAppDirectory() async {
     Directory appBaseDir = await createDirs(await getApplicationDocumentsDirectory());
-    return appBaseDir != null ? await createDirs(Directory(path.join(appBaseDir.path, Constant.APP_NAME))) ?? null : null;
+    return await createDirs(Directory(path.join(appBaseDir.path, Constant.APP_NAME)));
   }
 
   static Future<Directory> getRecordingsDirectory() async {
     Directory appDirectory = await getAppDirectory();
-    return appDirectory != null ? await createDirs(Directory(path.join(appDirectory.path, Constant.FOLDER_NAME_RECORDINGS))) ?? null : null;
+    return await createDirs(Directory(path.join(appDirectory.path, Constant.FOLDER_NAME_RECORDINGS)));
   }
 
   static Future<List<File>> getRecordingsFiles({FileSort fileSort = FileSort.DateDescending}) async {
     Directory recordingsDirectory = await getRecordingsDirectory();
-    List<File> list = await getFiles(recordingsDirectory) ?? List<String>();
+    List<File> list = await getFiles(recordingsDirectory);
     sort(list, fileSort: fileSort);
     return list;
   }
@@ -81,14 +81,13 @@ class FileUtil {
   static Future<List<String>> getRecordingsFilenames() async {
     Directory recordingsDirectory = await getRecordingsDirectory();
     List<String> list = await getFilenames(recordingsDirectory);
-    return recordingsDirectory != null ? list : List<String>();
+    return list;
   }
 
   static Future<String> getNewRecordingFilePath(String extension) async {
-    if (extension == null) extension = "";
     Directory recordingsDirectory = await getRecordingsDirectory();
     int index = 1;
-    File file;
+    File? file;
     while (file == null || await file.exists()) {
       file = File(path.join(recordingsDirectory.path, "${Constant.FILE_NAME_RECORDING_BASE}$index$extension"));
       if(!await file.exists()){
@@ -128,7 +127,7 @@ class FileUtil {
   }
 
   static FileStat getFileStat(FileSystemEntity file) {
-    return file != null ? file.statSync() : null;
+    return file.statSync();
   }
 
   static FileStat getFileStatByFilePath(String filePath) {
@@ -136,34 +135,32 @@ class FileUtil {
   }
 
   static Future<void> sortByFilePath(List<String> listFilePaths, {FileSort fileSort = FileSort.DateAscending}) async {
-    sort(listFilePaths.map((filePath) => File(filePath)), fileSort: fileSort);
+    sort(listFilePaths.map((filePath) => File(filePath)).toList(), fileSort: fileSort);
   }
 
   static void sort(List<File> list, {FileSort fileSort = FileSort.DateAscending}) {
-    if (fileSort != null) {
-      if (fileSort == FileSort.NameDescending || fileSort == FileSort.NameAscending) {
-        list.sort((file1, file2) {
-          return fileSort == FileSort.NameAscending
-              ? getName(file1, withExtension: true).compareTo(getName(file2, withExtension: true))
-              : getName(file2, withExtension: true).compareTo(getName(file1, withExtension: true));
-        });
-      } else if (fileSort == FileSort.DateDescending) {
-        list.sort((file1, file2) {
-          return getFileStat(file1).changed.isAfter(getFileStat(file2).changed) ? -1 : 1;
-        });
-      } else if (fileSort == FileSort.DateAscending) {
-        list.sort((file1, file2) {
-          return getFileStat(file1).changed.isBefore(getFileStat(file2).changed) ? -1 : 1;
-        });
-      } else if (fileSort == FileSort.SizeDescending) {
-        list.sort((file1, file2) {
-          return getFileStat(file1).size < getFileStat(file2).size ? -1 : 1;
-        });
-      } else if (fileSort == FileSort.SizeAscending) {
-        list.sort((file1, file2) {
-          return getFileStat(file1).size > getFileStat(file2).size ? -1 : 1;
-        });
-      }
+    if (fileSort == FileSort.NameDescending || fileSort == FileSort.NameAscending) {
+      list.sort((file1, file2) {
+        return fileSort == FileSort.NameAscending
+            ? getName(file1, withExtension: true).compareTo(getName(file2, withExtension: true))
+            : getName(file2, withExtension: true).compareTo(getName(file1, withExtension: true));
+      });
+    } else if (fileSort == FileSort.DateDescending) {
+      list.sort((file1, file2) {
+        return getFileStat(file1).changed.isAfter(getFileStat(file2).changed) ? -1 : 1;
+      });
+    } else if (fileSort == FileSort.DateAscending) {
+      list.sort((file1, file2) {
+        return getFileStat(file1).changed.isBefore(getFileStat(file2).changed) ? -1 : 1;
+      });
+    } else if (fileSort == FileSort.SizeDescending) {
+      list.sort((file1, file2) {
+        return getFileStat(file1).size < getFileStat(file2).size ? -1 : 1;
+      });
+    } else if (fileSort == FileSort.SizeAscending) {
+      list.sort((file1, file2) {
+        return getFileStat(file1).size > getFileStat(file2).size ? -1 : 1;
+      });
     }
   }
 

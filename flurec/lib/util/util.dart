@@ -19,7 +19,7 @@ class Util {
 
   static MaterialColor createMaterialColor(Color color) {
     List strengths = <double>[.05];
-    Map swatch = <int, Color>{};
+    Map<int, Color> swatch = <int, Color>{};
     final int r = color.red,
         g = color.green,
         b = color.blue;
@@ -73,7 +73,6 @@ class Util {
     bool includeMS = false,
     bool replaceDateByTodayOrYesterday = false,
   }) {
-    assert(dateTime != null);
     String date;
     if (addDate) {
       if (replaceDateByTodayOrYesterday) {

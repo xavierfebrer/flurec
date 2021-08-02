@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class PopupUtil {
-  static Future<void> showPopup(BuildContext context, String title, String description, String confirmButtonText, String cancelButtonText,
+  static Future<void> showPopup(BuildContext context, String? title, String? description, String? confirmButtonText, String? cancelButtonText,
       {bool barrierDismissible = true,
-      Function() onConfirm,
-      Function() onCancel,
-      TextStyle textStyleTitle,
-      TextStyle textStyleDescription,
-      TextStyle textStyleConfirmButtonText,
-      TextStyle textStyleCancelButtonText}) async {
+      Function()? onConfirm,
+      Function()? onCancel,
+      TextStyle? textStyleTitle,
+      TextStyle? textStyleDescription,
+      TextStyle? textStyleConfirmButtonText,
+      TextStyle? textStyleCancelButtonText}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: barrierDismissible,
@@ -35,15 +35,15 @@ class PopupUtil {
     );
   }
 
-  static Future<void> showPopupEdit(BuildContext context, String title, String description, String confirmButtonText, String cancelButtonText,
+  static Future<void> showPopupEdit(BuildContext context, String? title, String? description, String? confirmButtonText, String? cancelButtonText,
       {bool barrierDismissible = true,
-      Function() onConfirm,
-      Function() onCancel,
-      Function(String newText) onChanged,
-      TextStyle textStyleTitle,
-      TextStyle textStyleDescription,
-      TextStyle textStyleConfirmButtonText,
-      TextStyle textStyleCancelButtonText}) async {
+      Function()? onConfirm,
+      Function()? onCancel,
+      Function(String newText)? onChanged,
+      TextStyle? textStyleTitle,
+      TextStyle? textStyleDescription,
+      TextStyle? textStyleConfirmButtonText,
+      TextStyle? textStyleCancelButtonText}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: barrierDismissible,
@@ -71,8 +71,8 @@ class PopupUtil {
     );
   }
 
-  static List<Widget> getActionWidgets(BuildContext context, String confirmButtonText, String cancelButtonText,
-      {TextStyle textStyleConfirmButtonText, TextStyle textStyleCancelButtonText, Function() onConfirm, Function() onCancel}) {
+  static List<Widget> getActionWidgets(BuildContext context, String? confirmButtonText, String? cancelButtonText,
+      {TextStyle? textStyleConfirmButtonText, TextStyle? textStyleCancelButtonText, Function()? onConfirm, Function()? onCancel}) {
     List<Widget> widgetList = [];
     if (confirmButtonText != null && confirmButtonText.isNotEmpty) {
       widgetList.add(FlatButton(

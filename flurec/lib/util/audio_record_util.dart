@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:screen/screen.dart';
+import 'package:wakelock/wakelock.dart';
 
 class AudioRecordUtil {
   static Future<bool> openAudioSession(FlutterSoundRecorder recorder,
@@ -43,17 +43,17 @@ class AudioRecordUtil {
         sampleRate: sampleRate,
         numChannels: numChannels,
         bitRate: bitRate,
-        audioSource: AudioSource.defaultSource,
+        //audioSource: AudioSource.defaultSource,
       );
-      Screen.keepOn(true);
+      await Wakelock.enable;
       return true;
     } catch (e) {}
-    Screen.keepOn(false);
+    await Wakelock.disable;
     return false;
   }
 
   static Future<bool> stopRecorder(FlutterSoundRecorder recorder) async {
-    Screen.keepOn(false);
+    await Wakelock.disable;
     try {
       await recorder.stopRecorder();
       return true;
@@ -61,18 +61,18 @@ class AudioRecordUtil {
     return false;
   }
 
-  static Future<bool> resumeRecorder(FlutterSoundRecorder recorder, {VoidCallback onSuccess, VoidCallback onFail}) async {
+  static Future<bool> resumeRecorder(FlutterSoundRecorder recorder, {VoidCallback? onSuccess, VoidCallback? onFail}) async {
     try {
       await recorder.resumeRecorder();
-      Screen.keepOn(true);
+      await Wakelock.enable;
       return true;
     } catch (e) {}
-    Screen.keepOn(false);
+    await Wakelock.disable;
     return false;
   }
 
   static Future<bool> pauseRecorder(FlutterSoundRecorder recorder) async {
-    Screen.keepOn(false);
+    await Wakelock.disable;
     try {
       await recorder.pauseRecorder();
       return true;
@@ -80,8 +80,8 @@ class AudioRecordUtil {
     return false;
   }
 
-  static Future<bool> disposeRecorder(FlutterSoundRecorder recorder) async {
-    Screen.keepOn(false);
+  static Future<bool> disposeRecorder(FlutterSoundRecorder? recorder) async {
+    await Wakelock.disable;
     try {
       await recorder?.closeAudioSession();
       return true;

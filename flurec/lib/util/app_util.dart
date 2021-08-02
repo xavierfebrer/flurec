@@ -1,5 +1,5 @@
-import 'package:flurec/model/Settings.dart';
-import 'package:flurec/util/Constant.dart';
+import 'package:flurec/model/settings.dart';
+import 'package:flurec/util/constant.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,7 +70,7 @@ class AppUtil {
     } else if (codec == Codec.vorbisWebM) {
       codecName = "WEBM VORBIS";
     } else {
-      return null;
+      throw Exception("Case not possible, codec: " + codec.toString());
     }
     codecName = "$codecName (${getExtensionForCodec(codec)})";
     return codecName;
@@ -103,13 +103,13 @@ class AppUtil {
     } else if (codec == Codec.pcmWebM || codec == Codec.opusWebM || codec == Codec.vorbisWebM) {
       extension = "webm";
     } else {
-      return null;
+      throw Exception("Case not possible, codec: " + codec.toString());
     }
     return extension = (withStartingDot ? "." : "") + extension;
   }
 
   static Future<List<Codec>> getCodecsForExtension(String extension) async {
-    List<Codec> codecs = List<Codec>();
+    List<Codec> codecs = [];
     if (extension.endsWith("adts")) {
       codecs.add(Codec.aacADTS);
     } else if (extension.endsWith("ogg")) {
@@ -144,7 +144,7 @@ class AppUtil {
   }
 
   static Future<List<Codec>> getAvailableEncoderCodecs(TargetPlatform platform) async {
-    List<Codec> availableCodecs = List<Codec>();
+    List<Codec> availableCodecs = [];
     if (platform == TargetPlatform.android) {
       availableCodecs.addAll([
         Codec.aacADTS,
@@ -173,7 +173,7 @@ class AppUtil {
   }
 
   static Future<List<Codec>> getAvailableDecoderCodecs(TargetPlatform platform) async {
-    List<Codec> availableCodecs = List<Codec>();
+    List<Codec> availableCodecs = [];
     if (platform == TargetPlatform.android) {
       availableCodecs.addAll([
         Codec.aacADTS,

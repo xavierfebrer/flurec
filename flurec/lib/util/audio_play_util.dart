@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:screen/screen.dart';
+import 'package:wakelock/wakelock.dart';
 
 class AudioPlayUtil {
   static Future<bool> openAudioSession(
@@ -28,8 +28,9 @@ class AudioPlayUtil {
     return false;
   }
 
-  static Future<Duration> startPlayer(FlutterSoundPlayer player, String completeFilePathWithExtension, List<Codec> codecs, {VoidCallback onFinish}) async {
-    Duration duration;
+  static Future<Duration?> startPlayer(FlutterSoundPlayer player, String completeFilePathWithExtension, List<Codec> codecs,
+      {VoidCallback? onFinish}) async {
+    Duration? duration;
     for (Codec codec in codecs) {
       try {
         duration = await player.startPlayer(
@@ -46,12 +47,12 @@ class AudioPlayUtil {
         break;
       }
     }
-    Screen.keepOn(duration != null);
+    await duration != null ? Wakelock.enable() : Wakelock.disable();
     return duration;
   }
 
   static Future<bool> stopPlayer(FlutterSoundPlayer player) async {
-    Screen.keepOn(false);
+    await Wakelock.disable;
     try {
       await player.stopPlayer();
       return true;
@@ -60,7 +61,7 @@ class AudioPlayUtil {
   }
 
   static Future<bool> resumePlayer(FlutterSoundPlayer player) async {
-    Screen.keepOn(false);
+    await Wakelock.disable;
     try {
       await player.resumePlayer();
       return true;
@@ -69,7 +70,7 @@ class AudioPlayUtil {
   }
 
   static Future<bool> pausePlayer(FlutterSoundPlayer player) async {
-    Screen.keepOn(false);
+    await Wakelock.disable;
     try {
       await player.pausePlayer();
       return true;
@@ -77,8 +78,8 @@ class AudioPlayUtil {
     return false;
   }
 
-  static Future<bool> disposePlayer(FlutterSoundPlayer player) async {
-    Screen.keepOn(false);
+  static Future<bool> disposePlayer(FlutterSoundPlayer? player) async {
+    await Wakelock.disable;
     try {
       await player?.closeAudioSession();
       return true;

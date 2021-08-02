@@ -1,9 +1,9 @@
-import 'package:flurec/model/Settings.dart';
-import 'package:flurec/util/AppUtil.dart';
-import 'package:flurec/util/Constant.dart';
-import 'package:flurec/util/PopupUtil.dart';
-import 'package:flurec/util/ViewUtil.dart';
-import 'package:flurec/view/screen/BaseScreen.dart';
+import 'package:flurec/model/settings.dart';
+import 'package:flurec/util/app_util.dart';
+import 'package:flurec/util/constant.dart';
+import 'package:flurec/util/popup_util.dart';
+import 'package:flurec/util/view_util.dart';
+import 'package:flurec/view/screen/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -14,15 +14,14 @@ class SettingsEncoderScreen extends BaseScreen {
 }
 
 class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen> {
-  Settings settings;
-
-  List<Codec> availablePlatformCodecs;
+  late Settings settings;
+  late List<Codec> availablePlatformCodecs;
 
   @override
   void initState() {
     super.initState();
-    availablePlatformCodecs = List<Codec>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {});
+    availablePlatformCodecs = [];
+    WidgetsBinding.instance!.addPostFrameCallback((_) {});
   }
 
   @override
@@ -39,7 +38,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
     );
   }
 
-  Widget getAppBar() {
+  AppBar getAppBar() {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
@@ -80,7 +79,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
   }
 
   Widget getBodyWithoutData() {
-    return ViewUtil.getLoadingWidget(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+    return ViewUtil.getLoadingWidget<Settings>(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       return getBodyWithData();
     });
@@ -93,7 +92,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
         if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
         } else {
-          availablePlatformCodecs = snapshot.data;
+          availablePlatformCodecs = snapshot.data ?? [];
           return Scrollbar(
             child: ListView.separated(
               separatorBuilder: (context, index) => Divider(
@@ -149,7 +148,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
   Future<void> onRestoreSelected(BuildContext context) async {
     PopupUtil.showPopup(context, "Restore Encoder Settings", "Do you want to restore the default settings?", "Restore", "Cancel",
         textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
-        textStyleCancelButtonText: TextStyle(color: Theme.of(context).accentColor), onConfirm: () async {
+        textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary), onConfirm: () async {
       Settings defaultSettings = Settings();
       settings.currentEncoderCodec = defaultSettings.currentEncoderCodec;
       await AppUtil.setSettingsModel(settings);

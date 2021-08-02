@@ -1,10 +1,10 @@
-import 'package:flurec/model/Settings.dart';
-import 'package:flurec/util/AppUtil.dart';
-import 'package:flurec/util/Constant.dart';
-import 'package:flurec/util/PopupUtil.dart';
-import 'package:flurec/util/ViewUtil.dart';
-import 'package:flurec/view/navigation/FlurecNavigator.dart';
-import 'package:flurec/view/screen/BaseScreen.dart';
+import 'package:flurec/model/settings.dart';
+import 'package:flurec/util/app_util.dart';
+import 'package:flurec/util/constant.dart';
+import 'package:flurec/util/popup_util.dart';
+import 'package:flurec/util/view_util.dart';
+import 'package:flurec/view/navigation/flurec_navigator.dart';
+import 'package:flurec/view/screen/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -14,12 +14,12 @@ class SettingsScreen extends BaseScreen {
 }
 
 class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
-  Settings settings;
+  late Settings settings;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {});
+    WidgetsBinding.instance!.addPostFrameCallback((_) {});
   }
 
   @override
@@ -36,7 +36,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
     );
   }
 
-  Widget getAppBar() {
+  AppBar getAppBar() {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
@@ -77,7 +77,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
   }
 
   Widget getBodyWithoutData() {
-    return ViewUtil.getLoadingWidget(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+    return ViewUtil.getLoadingWidget<Settings>(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       return getBodyWithData();
     });
@@ -146,7 +146,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
 
   Future<void> onSettingTapped(BuildContext context, int index) async {
     if (index == 0) {
-      FlurecNavigator.getInstance().navigateToSettingsEncoder(context, false, () {
+      FlurecNavigator.instance.navigateToSettingsEncoder(context, false, () {
         onRefreshData();
       });
     } else {
@@ -166,7 +166,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
     }
   }
 
-  Widget getTrailingListTile(int index) {
+  Widget? getTrailingListTile(int index) {
     if (isSettingsOptionBool(index)) {
       bool value;
       if (index == 1) {
@@ -196,7 +196,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
   Future<void> onRestoreSelected(BuildContext context) async {
     PopupUtil.showPopup(context, "Restore Settings", "Do you want to restore the default settings?", "Restore", "Cancel",
         textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
-        textStyleCancelButtonText: TextStyle(color: Theme.of(context).accentColor), onConfirm: () async {
+        textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary), onConfirm: () async {
       await AppUtil.setSettingsModel(Settings());
       await onRefreshData();
     });

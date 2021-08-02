@@ -1,18 +1,19 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flurec/model/settings.dart';
-import 'package:flurec/util/app_util.dart';
-import 'package:flurec/util/audio_play_util.dart';
 import 'package:flurec/util/constant.dart';
-import 'package:flurec/util/file_util.dart';
-import 'package:flurec/util/popup_util.dart';
-import 'package:flurec/util/share_util.dart';
-import 'package:flurec/util/util.dart';
+import 'package:flurec/util/settings_util.dart';
 import 'package:flurec/util/view_util.dart';
 import 'package:flurec/view/navigation/flurec_navigator.dart';
 import 'package:flurec/view/screen/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:hack2s_flutter_util/util/audio_play_util.dart';
+import 'package:hack2s_flutter_util/util/audio_util.dart';
+import 'package:hack2s_flutter_util/util/file_util.dart';
+import 'package:hack2s_flutter_util/util/popup_util.dart';
+import 'package:hack2s_flutter_util/util/share_util.dart';
+import 'package:hack2s_flutter_util/util/util.dart';
 
 class AudioDetailScreen extends BaseScreen {
   final String filePath;
@@ -37,7 +38,6 @@ class PlayStateInfo {
 }
 
 class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
-
   final String filePath;
   late PlayStateInfo playStateInfo;
   FlutterSoundPlayer? player;
@@ -67,7 +67,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
         return true;
       }),
       child: Scaffold(
-        backgroundColor: Constant.COLOR_PRIMARY_LIGHT,
+        backgroundColor: FlurecConstant.COLOR_PRIMARY_LIGHT,
         appBar: getAppBar(),
         body: getBody(),
       ),
@@ -84,7 +84,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
         onEditSelected(context);
       },
     ));
-    if (Constant.ENABLE_SHARE) {
+    if (FlurecConstant.ENABLE_SHARE) {
       appBarWidgets.add(IconButton(
         icon: Icon(
           Icons.share_rounded,
@@ -112,11 +112,11 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
       ),
       title: Text(
         "Audio Detail",
-        style: TextStyle(color: Constant.COLOR_TEXT_LIGHT),
+        style: TextStyle(color: FlurecConstant.COLOR_TEXT_LIGHT),
       ),
       automaticallyImplyLeading: true,
       centerTitle: false,
-      iconTheme: IconThemeData(color: Constant.COLOR_PRIMARY_LIGHT),
+      iconTheme: IconThemeData(color: FlurecConstant.COLOR_PRIMARY_LIGHT),
       actions: appBarWidgets,
     );
   }
@@ -130,7 +130,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   }
 
   Widget getBodyWithoutData() {
-    return ViewUtil.getLoadingWidget<Settings>(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+    return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       if (!playedFirstTime && settings.autoPlayWhenVisitingDetail) {
         playedFirstTime = true;
@@ -144,9 +144,9 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     List<Widget> widgetsBody = [];
     widgetsBody.add(Container(
       alignment: Alignment.topCenter,
-      padding: EdgeInsets.fromLTRB(Constant.PADDING_IN_VIEW, 60, Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW),
+      padding: EdgeInsets.fromLTRB(FlurecConstant.PADDING_IN_VIEW, 60, FlurecConstant.PADDING_IN_VIEW, FlurecConstant.PADDING_IN_VIEW),
       child: AutoSizeText(
-        "${FileUtil.getNameByPath(filePath)}",
+        "${Hack2sFileUtil.getNameByPath(filePath)}",
         style: TextStyle(
           fontSize: 26.0,
         ),
@@ -156,26 +156,26 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     ));
     widgetsBody.add(Container(
       alignment: Alignment.bottomCenter,
-      padding: EdgeInsets.fromLTRB(Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW, 50),
+      padding: EdgeInsets.fromLTRB(FlurecConstant.PADDING_IN_VIEW, FlurecConstant.PADDING_IN_VIEW, FlurecConstant.PADDING_IN_VIEW, 50),
       child: AutoSizeText("${playStateInfo.info}"),
     ));
     widgetsBody.add(Container(
       alignment: Alignment.bottomLeft,
-      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+      padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
       child: Text(
-        "${Util.getFormattedSize(FileUtil.getFileStatByFilePath(filePath).size)}",
+        "${Hack2sUtil.getFormattedSize(Hack2sFileUtil.getFileStatByFilePath(filePath).size)}",
         maxLines: 1,
         textAlign: TextAlign.end,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: Constant.COLOR_TEXT_DARK_2, fontStyle: FontStyle.italic),
+        style: TextStyle(color: FlurecConstant.COLOR_TEXT_DARK_2, fontStyle: FontStyle.italic),
       ),
     ));
     widgetsBody.add(Container(
       alignment: Alignment.bottomRight,
-      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+      padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
       child: Text(
-        "${Util.getFormattedDateTime(
-          FileUtil.getFileStatByFilePath(filePath).changed,
+        "${Hack2sUtil.getFormattedDateTime(
+          Hack2sFileUtil.getFileStatByFilePath(filePath).changed,
           separatorDate: "/",
           separatorTime: ":",
           separatorDateTime: " ",
@@ -185,7 +185,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
         maxLines: 1,
         textAlign: TextAlign.end,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: Constant.COLOR_TEXT_DARK_2, fontStyle: FontStyle.italic),
+        style: TextStyle(color: FlurecConstant.COLOR_TEXT_DARK_2, fontStyle: FontStyle.italic),
       ),
     ));
     if (playStateInfo.state == PlayState.INIT) {
@@ -206,12 +206,12 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   Widget getPlayButton() {
     return Container(
       alignment: Alignment.center,
-      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+      padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
       child: SizedBox(
-        width: Constant.SIZE_BUTTON_PLAY,
-        height: Constant.SIZE_BUTTON_PLAY,
+        width: FlurecConstant.SIZE_BUTTON_PLAY,
+        height: FlurecConstant.SIZE_BUTTON_PLAY,
         child: OutlinedButton(
-          style: ViewUtil.getPlayerButtonStyle(false),
+          style: FlurecViewUtil.getPlayerButtonStyle(false),
           child: Icon(
             Icons.play_arrow_rounded,
             size: 96.0,
@@ -227,12 +227,12 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   Widget getStopButton() {
     return Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+        padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
         child: SizedBox(
-          width: Constant.SIZE_BUTTON_PLAY,
-          height: Constant.SIZE_BUTTON_PLAY,
+          width: FlurecConstant.SIZE_BUTTON_PLAY,
+          height: FlurecConstant.SIZE_BUTTON_PLAY,
           child: OutlinedButton(
-            style: ViewUtil.getPlayerButtonStyle(true),
+            style: FlurecViewUtil.getPlayerButtonStyle(true),
             child: Icon(
               Icons.stop_rounded,
               size: 96.0,
@@ -273,7 +273,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   Future<bool> initializePlayer() async {
     await disposePlayer();
     player = FlutterSoundPlayer();
-    if (await AudioPlayUtil.openAudioSession(player!)) {
+    if (await Hack2sAudioPlayUtil.openAudioSession(player!)) {
       setState(() {
         playStateInfo = PlayStateInfo(PlayState.INIT, "");
       });
@@ -285,7 +285,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   }
 
   Future<bool> disposePlayer() async {
-    bool result = await AudioPlayUtil.disposePlayer(player);
+    bool result = await Hack2sAudioPlayUtil.disposePlayer(player);
     player = null;
     return result;
   }
@@ -293,8 +293,8 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   void onPlaySelected() async {
     TargetPlatform platform = Theme.of(context).platform;
     /*String extension = FileUtil.getExtensionByPath(filePath);
-    List<Codec> codecsForExtension = await AppUtil.getCodecsForExtension(extension);*/
-    List<Codec> availablePlatformCodecs = await AppUtil.getAvailableDecoderCodecs(platform);
+    List<Codec> codecsForExtension = await Hack2sAppUtil.getCodecsForExtension(extension);*/
+    List<Codec> availablePlatformCodecs = await Hack2sAudioUtil.getAvailableDecoderCodecs(platform);
     List<Codec> finalCodecs = [];
     /*for(Codec codecForExtension in codecsForExtension){
       if(availablePlatformCodecs.contains(codecForExtension)){
@@ -304,7 +304,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     finalCodecs.addAll(availablePlatformCodecs);
     //DebugUtil.log(
     //    "${Constant.LOG_TAG}", "onPlaySelected extension:$extension, codecsForExtension: ${codecsForExtension.join(", ")}, availablePlatformCodecs: ${availablePlatformCodecs.join(", ")}, finalCodecs: ${finalCodecs.join(", ")}");
-    Duration? duration = await AudioPlayUtil.startPlayer(player!, filePath, finalCodecs, onFinish: () {
+    Duration? duration = await Hack2sAudioPlayUtil.startPlayer(player!, filePath, finalCodecs, onFinish: () {
       onStopSelected();
     });
     if (duration != null) {
@@ -317,7 +317,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   }
 
   Future<void> onStopSelected() async {
-    bool result = await AudioPlayUtil.stopPlayer(player!);
+    bool result = await Hack2sAudioPlayUtil.stopPlayer(player!);
     if (result) {
       setState(() {
         playStateInfo = PlayStateInfo(PlayState.INIT, "");
@@ -348,26 +348,28 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
 
   Future<void> onShareSelected(BuildContext context) async {
     await onStopSelected();
-    await ShareUtil.shareFile(context, this.filePath);
+    await Hack2sShareUtil.shareFile(context, this.filePath);
   }
 
   Future<void> onDeleteSelected(BuildContext context) async {
     await onStopSelected();
     Function() onConfirmAction = () async {
-      if (await FileUtil.deleteFileByPath(filePath)) {
+      if (await Hack2sFileUtil.deleteFileByPath(filePath)) {
         Navigator.of(context).pop();
         if (settings.showDeleteSuccessInfo) {
-          PopupUtil.showPopup(context, "File deleted", "The file ${FileUtil.getNameByPath(filePath)} has been deleted.", "Ok", null,
+          Hack2sPopupUtil.showPopup(context, "File deleted", "The file ${Hack2sFileUtil.getNameByPath(filePath)} has been deleted.", "Ok", null,
               textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
               textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
         }
       } else {
-        PopupUtil.showPopup(context, "Delete Error", "Failed to delete the file ${FileUtil.getNameByPath(filePath)}.", "Ok", null,
-            textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark), textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
+        Hack2sPopupUtil.showPopup(context, "Delete Error", "Failed to delete the file ${Hack2sFileUtil.getNameByPath(filePath)}.", "Ok", null,
+            textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
+            textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
       }
     };
     if (settings.showConfirmationDeleteFiles) {
-      PopupUtil.showPopup(context, "Delete file", "Do you want to delete the file ${FileUtil.getNameByPath(filePath)}?", "Delete", "Cancel",
+      Hack2sPopupUtil.showPopup(
+          context, "Delete file", "Do you want to delete the file ${Hack2sFileUtil.getNameByPath(filePath)}?", "Delete", "Cancel",
           textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
           textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary), onConfirm: () {
         onConfirmAction();
@@ -379,7 +381,8 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
 
   Future<void> onRenameStart(BuildContext context) async {
     newEditNameText = "";
-    await PopupUtil.showPopupEdit(context, "Edit file name", "${FileUtil.getNameByPath(filePath, withExtension: false)}", "Rename", "Cancel",
+    await Hack2sPopupUtil.showPopupEdit(
+        context, "Edit file name", "${Hack2sFileUtil.getNameByPath(filePath, withExtension: false)}", "Rename", "Cancel",
         textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
         textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary),
         onConfirm: () async {
@@ -393,15 +396,16 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
 
   Future<void> onRenameConfirmed() async {
     if (newEditNameText.isNotEmpty == true) {
-      String parentPath = FileUtil.getPathByFilePath(filePath);
-      String newFilename = "$newEditNameText${FileUtil.getExtensionByPath(filePath)}";
-      String newFilePath = FileUtil.joinByPathFilename(parentPath, newFilename);
-      if (await FileUtil.fileExists(newFilePath)) {
+      String parentPath = Hack2sFileUtil.getPathByFilePath(filePath);
+      String newFilename = "$newEditNameText${Hack2sFileUtil.getExtensionByPath(filePath)}";
+      String newFilePath = Hack2sFileUtil.joinByPathFilename(parentPath, newFilename);
+      if (await Hack2sFileUtil.fileExists(newFilePath)) {
         Function() onRenameConfirm = () async {
-          await FileUtil.renameFileByFilePath(filePath, newFilePath);
+          await Hack2sFileUtil.renameFileByFilePath(filePath, newFilePath);
         };
         if (settings.showConfirmationRenameFiles) {
-          await PopupUtil.showPopup(context, "Replace existing file?", "A file already exists with the name: $newFilename.", "Replace", "Cancel",
+          await Hack2sPopupUtil.showPopup(
+              context, "Replace existing file?", "A file already exists with the name: $newFilename.", "Replace", "Cancel",
               textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
               textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary),
               onConfirm: onRenameConfirm);
@@ -409,11 +413,11 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
           await onRenameConfirm();
         }
       } else {
-        bool renamed = await FileUtil.renameFileByFilePath(filePath, newFilePath);
+        bool renamed = await Hack2sFileUtil.renameFileByFilePath(filePath, newFilePath);
         if (renamed) {
           if (settings.showRenameSuccessInfoFiles) {
-            await PopupUtil.showPopup(context, "File ${renamed ? "" : "not"}renamed",
-                "Renamed the file:\n${FileUtil.getNameByPath(filePath)}\nto:\n${FileUtil.getNameByPath(newFilePath)}", "Ok", null,
+            await Hack2sPopupUtil.showPopup(context, "File ${renamed ? "" : "not"}renamed",
+                "Renamed the file:\n${Hack2sFileUtil.getNameByPath(filePath)}\nto:\n${Hack2sFileUtil.getNameByPath(newFilePath)}", "Ok", null,
                 textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
                 textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
           }
@@ -429,12 +433,14 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   }
 
   Future<void> showFileNotRenamedPopup(BuildContext context) async {
-    await PopupUtil.showPopup(context, "File not renamed", "In order to rename the file, a valid and different name must be provided.", "Ok", null,
-        textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark), textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
+    await Hack2sPopupUtil.showPopup(
+        context, "File not renamed", "In order to rename the file, a valid and different name must be provided.", "Ok", null,
+        textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
+        textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
   }
 
   Future<void> changeFilePath(String newFilePath) async {
-    FlurecNavigator.instance.navigateToAudioDetailReplaced(context, newFilePath);
+    FlurecNavigator.navigateToAudioDetailReplaced(context, newFilePath);
   }
 
   Future<void> onRefreshData() async {

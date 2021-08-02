@@ -10,13 +10,13 @@ class Settings {
   late Codec currentEncoderCodec;
 
   Settings({
-    this.autoPlayWhenVisitingDetail = Constant.DEFAULT_AUTO_PLAY_WHEN_VISITING_DETAIL,
-    this.showDeleteSuccessInfo = Constant.DEFAULT_SHOW_DELETE_SUCCESS_INFO,
-    this.showRenameSuccessInfoFiles = Constant.DEFAULT_SHOW_RENAME_SUCCESS_INFO,
-    this.showConfirmationDeleteFiles = Constant.DEFAULT_SHOW_CONFIRMATION_DELETE_FILES,
-    this.showConfirmationRenameFiles = Constant.DEFAULT_SHOW_CONFIRMATION_RENAME_FILES,
-    this.currentEncoderCodec = Constant.DEFAULT_CURRENT_ENCODER_CODEC_INDEX,
-  }){}
+    this.autoPlayWhenVisitingDetail = FlurecConstant.DEFAULT_AUTO_PLAY_WHEN_VISITING_DETAIL,
+    this.showDeleteSuccessInfo = FlurecConstant.DEFAULT_SHOW_DELETE_SUCCESS_INFO,
+    this.showRenameSuccessInfoFiles = FlurecConstant.DEFAULT_SHOW_RENAME_SUCCESS_INFO,
+    this.showConfirmationDeleteFiles = FlurecConstant.DEFAULT_SHOW_CONFIRMATION_DELETE_FILES,
+    this.showConfirmationRenameFiles = FlurecConstant.DEFAULT_SHOW_CONFIRMATION_RENAME_FILES,
+    this.currentEncoderCodec = FlurecConstant.DEFAULT_CURRENT_ENCODER_CODEC_INDEX,
+  });
 
   @override
   String toString() {

@@ -9,7 +9,7 @@ packages:
     source: hosted
     version: "2.7.0"
   auto_size_text:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: auto_size_text
       url: "https://pub.dartlang.org"
@@ -58,7 +58,7 @@ packages:
     source: hosted
     version: "3.0.1"
   cupertino_icons:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: cupertino_icons
       url: "https://pub.dartlang.org"
@@ -86,7 +86,7 @@ packages:
     source: hosted
     version: "6.1.2"
   filesize:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: filesize
       url: "https://pub.dartlang.org"
@@ -105,7 +105,7 @@ packages:
     source: hosted
     version: "1.0.4"
   flutter_sound:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_sound
       url: "https://pub.dartlang.org"
@@ -142,6 +142,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  hack2s_flutter_util:
+    dependency: "direct main"
+    description:
+      path: "../../hack2s_flutter_util/hack2s_flutter_util"
+      relative: true
+    source: path
+    version: "1.0.0+1"
   js:
     dependency: transitive
     description:
@@ -199,7 +206,7 @@ packages:
     source: hosted
     version: "1.8.0"
   path_provider:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: path_provider
       url: "https://pub.dartlang.org"
@@ -234,7 +241,7 @@ packages:
     source: hosted
     version: "2.0.3"
   permission_handler:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: permission_handler
       url: "https://pub.dartlang.org"
@@ -283,14 +290,14 @@ packages:
     source: hosted
     version: "4.0.0"
   share:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: share
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.4"
   shared_preferences:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: shared_preferences
       url: "https://pub.dartlang.org"
@@ -407,7 +414,7 @@ packages:
     source: hosted
     version: "2.1.0"
   wakelock:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: wakelock
       url: "https://pub.dartlang.org"

@@ -1,29 +1,19 @@
 import 'package:flurec/util/constant.dart';
-import 'package:flurec/util/util.dart';
 import 'package:flurec/view/screen/home/audio_record_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hack2s_flutter_util/util/app_util.dart';
+import 'package:hack2s_flutter_util/view/app/base_app.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) {
-    runApp(FluRecApp());
-  });
+  Hack2sAppUtil.runApplication([DeviceOrientation.portraitUp], () => FlurecApp());
 }
 
-class FluRecApp extends StatelessWidget {
+class FlurecApp extends BaseApp {
+  FlurecApp({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
-    ThemeData themeData = ThemeData(
-      primarySwatch: Util.createMaterialColor(Constant.COLOR_PRIMARY),
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-    );
-    return MaterialApp(
-      title: Constant.APP_NAME,
-      theme: themeData.copyWith(
-          colorScheme: themeData.colorScheme.copyWith(secondary: Constant.COLOR_ACCENT)
-      ),
-      home: AudioRecordScreen(),
-    );
-  }
+  Widget getWidget() => Hack2sAppUtil.getDefaultMaterialApp(
+      FlurecConstant.APP_NAME, Hack2sAppUtil.getDefaultThemeData(FlurecConstant.COLOR_PRIMARY, FlurecConstant.COLOR_ACCENT), AudioRecordScreen());
 }

@@ -1,17 +1,18 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flurec/util/util.dart';
 import 'package:flurec/model/settings.dart';
-import 'package:flurec/util/app_util.dart';
-import 'package:flurec/util/audio_record_util.dart';
 import 'package:flurec/util/constant.dart';
-import 'package:flurec/util/debug_util.dart';
 import 'package:flurec/util/file_util.dart';
+import 'package:flurec/util/settings_util.dart';
 import 'package:flurec/util/view_util.dart';
 import 'package:flurec/view/navigation/flurec_navigator.dart';
 import 'package:flurec/view/screen/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:hack2s_flutter_util/util/audio_record_util.dart';
+import 'package:hack2s_flutter_util/util/audio_util.dart';
+import 'package:hack2s_flutter_util/util/debug_util.dart';
+import 'package:hack2s_flutter_util/util/util.dart';
 
 class AudioRecordScreen extends BaseScreen {
   @override
@@ -47,17 +48,17 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    DebugUtil.log("$Constant.LOG_TAG", "COLOR_PRIMARY_LIGHT ${Constant.COLOR_PRIMARY_LIGHT.toHex()}");
-    DebugUtil.log("$Constant.LOG_TAG", "COLOR_PRIMARY_DARK ${Constant.COLOR_PRIMARY_DARK.toHex()}");
-    DebugUtil.log("$Constant.LOG_TAG", "COLOR_ACCENT_LIGHT ${Constant.COLOR_ACCENT_LIGHT.toHex()}");
-    DebugUtil.log("$Constant.LOG_TAG", "COLOR_ACCENT_DARK ${Constant.COLOR_ACCENT_DARK.toHex()}");
+    Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_PRIMARY_LIGHT ${FlurecConstant.COLOR_PRIMARY_LIGHT.toHex()}");
+    Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_PRIMARY_DARK ${FlurecConstant.COLOR_PRIMARY_DARK.toHex()}");
+    Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_ACCENT_LIGHT ${FlurecConstant.COLOR_ACCENT_LIGHT.toHex()}");
+    Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_ACCENT_DARK ${FlurecConstant.COLOR_ACCENT_DARK.toHex()}");
     return WillPopScope(
       onWillPop: () => Future(() {
         onStopSelected();
         return true;
       }),
       child: Scaffold(
-        backgroundColor: Constant.COLOR_PRIMARY_LIGHT,
+        backgroundColor: FlurecConstant.COLOR_PRIMARY_LIGHT,
         appBar: getAppBar(),
         body: getBody(),
       ),
@@ -67,12 +68,12 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   AppBar getAppBar() {
     return AppBar(
       title: Text(
-        Constant.APP_NAME,
-        style: TextStyle(color: Constant.COLOR_TEXT_LIGHT),
+        FlurecConstant.APP_NAME,
+        style: TextStyle(color: FlurecConstant.COLOR_TEXT_LIGHT),
       ),
       automaticallyImplyLeading: true,
       centerTitle: false,
-      iconTheme: IconThemeData(color: Constant.COLOR_PRIMARY_LIGHT),
+      iconTheme: IconThemeData(color: FlurecConstant.COLOR_PRIMARY_LIGHT),
       actions: <Widget>[
         IconButton(
           icon: Icon(
@@ -103,7 +104,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   }
 
   Widget getBodyWithoutData() {
-    return ViewUtil.getLoadingWidget<Settings>(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+    return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       return getBodyWithData();
     });
@@ -113,7 +114,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
     List<Widget> widgetsBody = [];
     widgetsBody.add(Container(
       alignment: Alignment.bottomCenter,
-      padding: EdgeInsets.fromLTRB(Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW, Constant.PADDING_IN_VIEW, 50),
+      padding: EdgeInsets.fromLTRB(FlurecConstant.PADDING_IN_VIEW, FlurecConstant.PADDING_IN_VIEW, FlurecConstant.PADDING_IN_VIEW, 50),
       child: AutoSizeText("${recordStateInfo.info}"),
     ));
     if (recordStateInfo.state == RecordState.INIT) {
@@ -129,18 +130,18 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   Widget getRecordButton() {
     return Container(
       alignment: Alignment.center,
-      padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+      padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
       child: SizedBox(
-        width: Constant.SIZE_BUTTON_RECORD,
-        height: Constant.SIZE_BUTTON_RECORD,
+        width: FlurecConstant.SIZE_BUTTON_RECORD,
+        height: FlurecConstant.SIZE_BUTTON_RECORD,
         child: OutlinedButton(
-          style: ViewUtil.getPlayerButtonStyle(false),
+          style: FlurecViewUtil.getPlayerButtonStyle(false),
           child: Icon(
             Icons.mic_rounded,
             size: 96.0,
           ),
           onPressed: () async {
-            DebugUtil.log("${Constant.LOG_TAG}","getRecordButton() onPressed");
+            Hack2sDebugUtil.log("${FlurecConstant.LOG_TAG}", "getRecordButton() onPressed");
             await onRecordSelected();
           },
         ),
@@ -151,18 +152,18 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   Widget getStopButton() {
     return Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(Constant.PADDING_IN_VIEW),
+        padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
         child: SizedBox(
-          width: Constant.SIZE_BUTTON_RECORD,
-          height: Constant.SIZE_BUTTON_RECORD,
+          width: FlurecConstant.SIZE_BUTTON_RECORD,
+          height: FlurecConstant.SIZE_BUTTON_RECORD,
           child: OutlinedButton(
-            style: ViewUtil.getPlayerButtonStyle(true),
+            style: FlurecViewUtil.getPlayerButtonStyle(true),
             child: Icon(
               Icons.stop_rounded,
               size: 96.0,
             ),
             onPressed: () async {
-              DebugUtil.log("${Constant.LOG_TAG}","getRecordButton() onPressed");
+              Hack2sDebugUtil.log("${FlurecConstant.LOG_TAG}", "getRecordButton() onPressed");
               await onStopSelected();
             },
           ),
@@ -198,7 +199,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   Future<bool> initializeRecorder() async {
     await disposeRecorder();
     recorder = FlutterSoundRecorder();
-    if (await AudioRecordUtil.openAudioSession(recorder!)) {
+    if (await Hack2sAudioRecordUtil.openAudioSession(recorder!)) {
       setState(() {
         recordStateInfo = RecordStateInfo(RecordState.INIT, "");
       });
@@ -210,7 +211,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   }
 
   Future<bool> disposeRecorder() async {
-    bool result = await AudioRecordUtil.disposeRecorder(recorder);
+    bool result = await Hack2sAudioRecordUtil.disposeRecorder(recorder);
     recorder = null;
     return result;
   }
@@ -218,18 +219,18 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   Future<void> onRecordSelected() async {
     Codec selectedCodec = settings.currentEncoderCodec;
     TargetPlatform platform = Theme.of(context).platform;
-    var availablePlatformCodecs = await AppUtil.getAvailableEncoderCodecs(platform);
-    String extension = AppUtil.getExtensionForCodec(selectedCodec);
-    String filePath = await FileUtil.getNewRecordingFilePath(extension);
-    DebugUtil.log("${Constant.LOG_TAG}","onRecordSelected() 6");
-    DebugUtil.log("${Constant.LOG_TAG}",
+    var availablePlatformCodecs = await Hack2sAudioUtil.getAvailableEncoderCodecs(platform);
+    String extension = Hack2sAudioUtil.getExtensionForCodec(selectedCodec);
+    String filePath =
+        await FlurecFileUtil.getNewRecordingFilePath(FlurecConstant.APP_NAME, FlurecConstant.FOLDER_NAME_RECORDINGS, FlurecConstant.FILE_NAME_RECORDING_BASE, extension);
+    Hack2sDebugUtil.log("${FlurecConstant.LOG_TAG}", "onRecordSelected() 6");
+    Hack2sDebugUtil.log("${FlurecConstant.LOG_TAG}",
         "onRecordSelected ${recorder!.isStopped} codec: $selectedCodec, extension: $extension, filePath: $filePath, availableCodecs ($platform): ${availablePlatformCodecs.join(", ")}");
-    if (extension == null) {
-      onFailedToStartRecorder("File extension not available for selected codec: $selectedCodec");
-    } else if (!(availablePlatformCodecs).contains(selectedCodec)) {
-      onFailedToStartRecorder("The selected codec: $selectedCodec, is not supported. Supported encoder codecs: ${availablePlatformCodecs.join(", ")}");
+    if (!(availablePlatformCodecs).contains(selectedCodec)) {
+      onFailedToStartRecorder(
+          "The selected codec: $selectedCodec, is not supported. Supported encoder codecs: ${availablePlatformCodecs.join(", ")}");
     } else {
-      bool result = await AudioRecordUtil.startRecorder(recorder!, filePath, codec: selectedCodec);
+      bool result = await Hack2sAudioRecordUtil.startRecorder(recorder!, filePath, codec: selectedCodec);
       if (result) {
         setState(() {
           recordStateInfo = RecordStateInfo(RecordState.RECORDING, "");
@@ -241,7 +242,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   }
 
   Future<void> onStopSelected() async {
-    bool result = await AudioRecordUtil.stopRecorder(recorder!);
+    bool result = await Hack2sAudioRecordUtil.stopRecorder(recorder!);
     if (result) {
       setState(() {
         recordStateInfo = RecordStateInfo(RecordState.INIT, "");
@@ -267,7 +268,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
 
   Future<void> onShowRecordingsSelected() async {
     onStopSelected();
-    FlurecNavigator.instance.navigateToAudioList(context, false, () {
+    FlurecNavigator.navigateToAudioList(context, false, () {
       onStopSelected();
       onRefreshData();
     });
@@ -275,7 +276,7 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
 
   Future<void> onSettingsSelected() async {
     onStopSelected();
-    FlurecNavigator.instance.navigateToSettings(context, false, () {
+    FlurecNavigator.navigateToSettings(context, false, () {
       onStopSelected();
       onRefreshData();
     });

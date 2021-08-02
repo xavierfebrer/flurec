@@ -1,12 +1,13 @@
 import 'package:flurec/model/settings.dart';
-import 'package:flurec/util/app_util.dart';
 import 'package:flurec/util/constant.dart';
-import 'package:flurec/util/popup_util.dart';
+import 'package:flurec/util/settings_util.dart';
 import 'package:flurec/util/view_util.dart';
 import 'package:flurec/view/navigation/flurec_navigator.dart';
 import 'package:flurec/view/screen/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hack2s_flutter_util/util/audio_util.dart';
+import 'package:hack2s_flutter_util/util/popup_util.dart';
 
 class SettingsScreen extends BaseScreen {
   @override
@@ -29,7 +30,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
         return true;
       }),
       child: Scaffold(
-        backgroundColor: Constant.COLOR_PRIMARY_LIGHT,
+        backgroundColor: FlurecConstant.COLOR_PRIMARY_LIGHT,
         appBar: getAppBar(),
         body: getBody(),
       ),
@@ -44,11 +45,11 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
       ),
       title: Text(
         "Settings",
-        style: TextStyle(color: Constant.COLOR_TEXT_LIGHT),
+        style: TextStyle(color: FlurecConstant.COLOR_TEXT_LIGHT),
       ),
       automaticallyImplyLeading: true,
       centerTitle: false,
-      iconTheme: IconThemeData(color: Constant.COLOR_PRIMARY_LIGHT),
+      iconTheme: IconThemeData(color: FlurecConstant.COLOR_PRIMARY_LIGHT),
       actions: getAppBarOptionWidgets(),
     );
   }
@@ -77,7 +78,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
   }
 
   Widget getBodyWithoutData() {
-    return ViewUtil.getLoadingWidget<Settings>(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+    return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       return getBodyWithData();
     });
@@ -88,7 +89,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
       child: ListView.separated(
         separatorBuilder: (context, index) => Divider(
           height: 1,
-          color: Constant.COLOR_DIVIDER,
+          color: FlurecConstant.COLOR_DIVIDER,
         ),
         itemCount: getSettingsCount(),
         itemBuilder: (context, index) {
@@ -127,7 +128,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
 
   String getSettingsOption(int index) {
     if (index == 0) {
-      return "Encoder: ${AppUtil.getCodecName(settings.currentEncoderCodec)}";
+      return "Encoder: ${Hack2sAudioUtil.getCodecName(settings.currentEncoderCodec)}";
     } else if (index == 1) {
       return "Auto play in Audio Detail";
     } else if (index == 2) {
@@ -146,7 +147,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
 
   Future<void> onSettingTapped(BuildContext context, int index) async {
     if (index == 0) {
-      FlurecNavigator.instance.navigateToSettingsEncoder(context, false, () {
+      FlurecNavigator.navigateToSettingsEncoder(context, false, () {
         onRefreshData();
       });
     } else {
@@ -161,7 +162,7 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
       } else if (index == 5) {
         settings.showRenameSuccessInfoFiles = !settings.showRenameSuccessInfoFiles;
       }
-      await AppUtil.setSettingsModel(settings);
+      await FlurecSettingsUtil.setSettingsModel(settings);
       await onRefreshData();
     }
   }
@@ -194,10 +195,10 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
   }
 
   Future<void> onRestoreSelected(BuildContext context) async {
-    PopupUtil.showPopup(context, "Restore Settings", "Do you want to restore the default settings?", "Restore", "Cancel",
+    Hack2sPopupUtil.showPopup(context, "Restore Settings", "Do you want to restore the default settings?", "Restore", "Cancel",
         textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
         textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary), onConfirm: () async {
-      await AppUtil.setSettingsModel(Settings());
+      await FlurecSettingsUtil.setSettingsModel(Settings());
       await onRefreshData();
     });
   }

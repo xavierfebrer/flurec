@@ -3,27 +3,22 @@
 import 'dart:ui';
 
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:hack2s_flutter_util/util/constant.dart';
 
-class Constant {
-  static const String EMPTY_STRING = "";
+class FlurecConstant {
   static const String APP_NAME = "Flurec";
   static const String LOG_TAG = "LOG_$APP_NAME";
-  static const double ALPHA_MIN = 0.0;
-  static const double ALPHA_MAX = 1.0;
-  static const Color COLOR_TRANSPARENT = Color(0x00000000);
-  static const Color COLOR_BLACK = Color(0xFF000000);
-  static const Color COLOR_WHITE = Color(0xFFFFFFFF);
   static const Color COLOR_PRIMARY = Color(0xFFF44336);
   static const Color COLOR_ACCENT = Color(0xFF03A9F4);
-  static Color COLOR_PRIMARY_LIGHT = Color.lerp(COLOR_PRIMARY, COLOR_WHITE, 0.80)!;
-  static Color COLOR_PRIMARY_DARK = Color.lerp(COLOR_PRIMARY, COLOR_BLACK, 0.20)!;
-  static Color COLOR_ACCENT_LIGHT = Color.lerp(COLOR_ACCENT, COLOR_WHITE, 0.20)!;
-  static Color COLOR_ACCENT_DARK = Color.lerp(COLOR_ACCENT, COLOR_BLACK, 0.20)!;
-  static Color COLOR_TEXT_DARK = Color.lerp(COLOR_BLACK, COLOR_WHITE, 0.05)!;
-  static Color COLOR_TEXT_DARK_2 = Color.lerp(COLOR_TEXT_DARK, COLOR_TEXT_LIGHT, 0.45)!;
-  static Color COLOR_TEXT_LIGHT = Color.lerp(COLOR_WHITE, COLOR_BLACK, 0.05)!;
-  static Color COLOR_TEXT_LIGHT_2 = Color.lerp(COLOR_TEXT_LIGHT, COLOR_BLACK, 0.45)!;
-  static Color COLOR_DIVIDER = Color.lerp(COLOR_BLACK, COLOR_WHITE, 0.75)!;
+  static final Color COLOR_PRIMARY_LIGHT = Color.lerp(COLOR_PRIMARY, Hack2sConstant.COLOR_WHITE, 0.80)!;
+  static final Color COLOR_PRIMARY_DARK = Color.lerp(COLOR_PRIMARY, Hack2sConstant.COLOR_BLACK, 0.20)!;
+  static final Color COLOR_ACCENT_LIGHT = Color.lerp(COLOR_ACCENT, Hack2sConstant.COLOR_WHITE, 0.20)!;
+  static final Color COLOR_ACCENT_DARK = Color.lerp(COLOR_ACCENT, Hack2sConstant.COLOR_BLACK, 0.20)!;
+  static final Color COLOR_TEXT_DARK = Color.lerp(Hack2sConstant.COLOR_BLACK, Hack2sConstant.COLOR_WHITE, 0.05)!;
+  static final Color COLOR_TEXT_DARK_2 = Color.lerp(COLOR_TEXT_DARK, COLOR_TEXT_LIGHT, 0.45)!;
+  static final Color COLOR_TEXT_LIGHT = Color.lerp(Hack2sConstant.COLOR_WHITE, Hack2sConstant.COLOR_BLACK, 0.05)!;
+  static final Color COLOR_TEXT_LIGHT_2 = Color.lerp(COLOR_TEXT_LIGHT, Hack2sConstant.COLOR_BLACK, 0.45)!;
+  static final Color COLOR_DIVIDER = Color.lerp(Hack2sConstant.COLOR_BLACK, Hack2sConstant.COLOR_WHITE, 0.75)!;
   static const double PADDING_IN_VIEW = 16.0;
   static const String FOLDER_NAME_RECORDINGS = "recordings";
   static const String FILE_NAME_RECORDING_BASE = "rec";

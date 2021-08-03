@@ -2,17 +2,18 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flurec/model/settings.dart';
-import 'package:flurec/util/app_util.dart';
 import 'package:flurec/util/constant.dart';
 import 'package:flurec/util/file_util.dart';
-import 'package:flurec/util/popup_util.dart';
-import 'package:flurec/util/share_util.dart';
-import 'package:flurec/util/util.dart';
+import 'package:flurec/util/settings_util.dart';
 import 'package:flurec/util/view_util.dart';
 import 'package:flurec/view/navigation/flurec_navigator.dart';
 import 'package:flurec/view/screen/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hack2s_flutter_util/util/file_util.dart';
+import 'package:hack2s_flutter_util/util/popup_util.dart';
+import 'package:hack2s_flutter_util/util/share_util.dart';
+import 'package:hack2s_flutter_util/util/util.dart';
 
 class AudioListScreen extends BaseScreen {
   @override
@@ -52,7 +53,7 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
         return true;
       }),
       child: Scaffold(
-        backgroundColor: Constant.COLOR_PRIMARY_LIGHT,
+        backgroundColor: FlurecConstant.COLOR_PRIMARY_LIGHT,
         appBar: getAppBar(),
         body: getBody(),
       ),
@@ -67,11 +68,11 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
       ),
       title: Text(
         "Audio List",
-        style: TextStyle(color: Constant.COLOR_TEXT_LIGHT),
+        style: TextStyle(color: FlurecConstant.COLOR_TEXT_LIGHT),
       ),
       automaticallyImplyLeading: true,
       centerTitle: false,
-      iconTheme: IconThemeData(color: Constant.COLOR_PRIMARY_LIGHT),
+      iconTheme: IconThemeData(color: FlurecConstant.COLOR_PRIMARY_LIGHT),
       actions: getAppBarOptionWidgets(),
     );
   }
@@ -79,7 +80,7 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
   List<Widget> getAppBarOptionWidgets() {
     List<Widget> appBarWidgets = [];
     if (selectedItems.isNotEmpty) {
-      if(Constant.ENABLE_SHARE){
+      if (FlurecConstant.ENABLE_SHARE) {
         appBarWidgets.add(
           IconButton(
             icon: Icon(
@@ -121,7 +122,8 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
     };
     if (fileSort == FileSort.DateDescending || fileSort == FileSort.DateAscending) {
       return RotationTransition(
-        turns: Tween(begin: fileSort == FileSort.DateDescending ? 0.0 : 0.5, end: fileSort == FileSort.DateDescending ? 0.5 : 0.0).animate(iconRotationController),
+        turns: Tween(begin: fileSort == FileSort.DateDescending ? 0.0 : 0.5, end: fileSort == FileSort.DateDescending ? 0.5 : 0.0)
+            .animate(iconRotationController),
         alignment: Alignment.center,
         child: IconButton(
           icon: Icon(
@@ -132,7 +134,8 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
       );
     } else if (fileSort == FileSort.SizeDescending || fileSort == FileSort.SizeAscending) {
       return RotationTransition(
-        turns: Tween(begin: fileSort == FileSort.SizeDescending ? 0.0 : 0.5, end: fileSort == FileSort.SizeDescending ? 0.5 : 0.0).animate(iconRotationController),
+        turns: Tween(begin: fileSort == FileSort.SizeDescending ? 0.0 : 0.5, end: fileSort == FileSort.SizeDescending ? 0.5 : 0.0)
+            .animate(iconRotationController),
         alignment: Alignment.center,
         child: Transform(
           alignment: Alignment.center,
@@ -147,7 +150,8 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
       );
     } else {
       return RotationTransition(
-        turns: Tween(begin: fileSort == FileSort.NameDescending ? 0.0 : 0.5, end: fileSort == FileSort.NameDescending ? 0.5 : 0.0).animate(iconRotationController),
+        turns: Tween(begin: fileSort == FileSort.NameDescending ? 0.0 : 0.5, end: fileSort == FileSort.NameDescending ? 0.5 : 0.0)
+            .animate(iconRotationController),
         alignment: Alignment.center,
         child: IconButton(
           icon: Icon(
@@ -168,7 +172,7 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
   }
 
   Widget getBodyWithoutData() {
-    return ViewUtil.getLoadingWidget<Settings>(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+    return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       return getBodyWithData();
     });
@@ -176,7 +180,7 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
 
   Widget getBodyWithData() {
     return FutureBuilder<List<File>>(
-      future: FileUtil.getRecordingsFiles(fileSort: fileSort),
+      future: FlurecFileUtil.getRecordingsFiles(FlurecConstant.APP_NAME, FlurecConstant.FOLDER_NAME_RECORDINGS, fileSort: fileSort),
       builder: (BuildContext context, AsyncSnapshot<List<File>> snapshot) {
         if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
@@ -186,18 +190,18 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
             child: ListView.separated(
               separatorBuilder: (context, index) => Divider(
                 height: 1,
-                color: Constant.COLOR_DIVIDER,
+                color: FlurecConstant.COLOR_DIVIDER,
               ),
               itemCount: files.length,
               itemBuilder: (context, index) {
                 bool isItemSelected = isSelectedItem(files[index].path);
                 return ListTile(
                   title: Text(
-                    FileUtil.getName(files[index], withExtension: true),
+                    Hack2sFileUtil.getName(files[index], withExtension: true),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: isItemSelected ? Constant.COLOR_TEXT_LIGHT : Constant.COLOR_TEXT_DARK,
+                      color: isItemSelected ? FlurecConstant.COLOR_TEXT_LIGHT : FlurecConstant.COLOR_TEXT_DARK,
                       fontSize: 18.0,
                     ),
                   ),
@@ -207,19 +211,19 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
                     textAlign: TextAlign.end,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: isItemSelected ? Constant.COLOR_TEXT_LIGHT_2 : Constant.COLOR_TEXT_DARK_2,
+                      color: isItemSelected ? FlurecConstant.COLOR_TEXT_LIGHT_2 : FlurecConstant.COLOR_TEXT_DARK_2,
                       fontStyle: FontStyle.italic,
                       fontSize: 12.0,
                     ),
                   ),
                   leading: selectedItems.isNotEmpty
                       ? IconButton(
-                    icon: Icon(isItemSelected ? Icons.audiotrack : Icons.audiotrack_outlined),
-                    onPressed: () async => await onItemSelected(files, index),
-                  )
+                          icon: Icon(isItemSelected ? Icons.audiotrack : Icons.audiotrack_outlined),
+                          onPressed: () async => await onItemSelected(files, index),
+                        )
                       : null,
                   selected: isItemSelected,
-                  selectedTileColor: Constant.COLOR_ACCENT,
+                  selectedTileColor: FlurecConstant.COLOR_ACCENT,
                   onTap: () async {
                     await onItemSelected(files, index);
                   },
@@ -251,7 +255,7 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
     if (selectedItems.isNotEmpty) {
       selectItem(files[index].path);
     } else {
-      FlurecNavigator.instance.navigateToAudioDetail(context, files[index].path, false, () async {
+      FlurecNavigator.navigateToAudioDetail(context, files[index].path, false, () async {
         await onRefreshData();
       });
     }
@@ -277,29 +281,33 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
   }
 
   Future<void> onShareSelected(BuildContext context) async {
-    if (selectedItems.isNotEmpty) await ShareUtil.shareFiles(context, selectedItems);
+    if (selectedItems.isNotEmpty) await Hack2sShareUtil.shareFiles(context, selectedItems);
   }
 
   Future<void> deleteSelectedItems(BuildContext context) async {
     List<String> fileNames = [];
     for (String filePath in selectedItems) {
-      fileNames.add(FileUtil.getNameByPath(filePath, withExtension: true));
+      fileNames.add(Hack2sFileUtil.getNameByPath(filePath, withExtension: true));
     }
     Function() onConfirmAction = () async {
-      List<String> deletedFiles = await FileUtil.deleteFilesByPath(selectedItems);
+      List<String> deletedFiles = await Hack2sFileUtil.deleteFilesByPath(selectedItems);
       selectedItems.clear();
       await onRefreshData();
       if (settings.showDeleteSuccessInfo) {
         if (deletedFiles.isNotEmpty) {
-          await PopupUtil.showPopup(context, "File${deletedFiles.length > 1 ? "s" : ""} deleted",
-              "${deletedFiles.length} file${deletedFiles.length > 1 ? "s" : ""} ${deletedFiles.length > 1 ? "have" : "has"} been deleted.", "Ok", null,
+          await Hack2sPopupUtil.showPopup(
+              context,
+              "File${deletedFiles.length > 1 ? "s" : ""} deleted",
+              "${deletedFiles.length} file${deletedFiles.length > 1 ? "s" : ""} ${deletedFiles.length > 1 ? "have" : "has"} been deleted.",
+              "Ok",
+              null,
               textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
               textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
         }
       }
     };
     if (settings.showConfirmationDeleteFiles) {
-      await PopupUtil.showPopup(
+      await Hack2sPopupUtil.showPopup(
           context, "Delete items", "Are you sure you want to delete ${fileNames.length} file${fileNames.length > 1 ? "s" : ""}?", "Delete", "Cancel",
           textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
           textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary),
@@ -327,10 +335,10 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
   }
 
   String getFileSubtitle(File file) {
-    FileStat fileStat = FileUtil.getFileStat(file);
+    FileStat fileStat = Hack2sFileUtil.getFileStat(file);
     String paddingStart = "  ";
     String paddingBetween = "   ";
-    return "$paddingStart${Util.getFormattedSize(fileStat.size)}$paddingBetween${Util.getFormattedDateTime(
+    return "$paddingStart${Hack2sUtil.getFormattedSize(fileStat.size)}$paddingBetween${Hack2sUtil.getFormattedDateTime(
       fileStat.changed,
       separatorDate: "/",
       separatorTime: ":",

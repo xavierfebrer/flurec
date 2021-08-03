@@ -1,12 +1,13 @@
 import 'package:flurec/model/settings.dart';
-import 'package:flurec/util/app_util.dart';
 import 'package:flurec/util/constant.dart';
-import 'package:flurec/util/popup_util.dart';
+import 'package:flurec/util/settings_util.dart';
 import 'package:flurec/util/view_util.dart';
 import 'package:flurec/view/screen/base_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:hack2s_flutter_util/util/audio_util.dart';
+import 'package:hack2s_flutter_util/util/popup_util.dart';
 
 class SettingsEncoderScreen extends BaseScreen {
   @override
@@ -31,7 +32,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
         return true;
       }),
       child: Scaffold(
-        backgroundColor: Constant.COLOR_PRIMARY_LIGHT,
+        backgroundColor: FlurecConstant.COLOR_PRIMARY_LIGHT,
         appBar: getAppBar(),
         body: getBody(),
       ),
@@ -46,11 +47,11 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
       ),
       title: Text(
         "Encoder Settings",
-        style: TextStyle(color: Constant.COLOR_TEXT_LIGHT),
+        style: TextStyle(color: FlurecConstant.COLOR_TEXT_LIGHT),
       ),
       automaticallyImplyLeading: true,
       centerTitle: false,
-      iconTheme: IconThemeData(color: Constant.COLOR_PRIMARY_LIGHT),
+      iconTheme: IconThemeData(color: FlurecConstant.COLOR_PRIMARY_LIGHT),
       actions: getAppBarOptionWidgets(),
     );
   }
@@ -79,7 +80,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
   }
 
   Widget getBodyWithoutData() {
-    return ViewUtil.getLoadingWidget<Settings>(AppUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+    return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       return getBodyWithData();
     });
@@ -87,7 +88,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
 
   Widget getBodyWithData() {
     return FutureBuilder<List<Codec>>(
-      future: AppUtil.getAvailableEncoderCodecs(Theme.of(context).platform),
+      future: Hack2sAudioUtil.getAvailableEncoderCodecs(Theme.of(context).platform),
       builder: (BuildContext context, AsyncSnapshot<List<Codec>> snapshot) {
         if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
@@ -97,13 +98,13 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
             child: ListView.separated(
               separatorBuilder: (context, index) => Divider(
                 height: 1,
-                color: Constant.COLOR_DIVIDER,
+                color: FlurecConstant.COLOR_DIVIDER,
               ),
               itemCount: availablePlatformCodecs.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  leading: getleadingListTile(index),
-                  title: Text(AppUtil.getCodecName(availablePlatformCodecs[index])),
+                  leading: getLeadingListTile(index),
+                  title: Text(Hack2sAudioUtil.getCodecName(availablePlatformCodecs[index])),
                   onTap: () async {
                     await onSettingTapped(context, index);
                   },
@@ -134,11 +135,11 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
 
   Future<void> onSettingTapped(BuildContext context, int index) async {
     settings.currentEncoderCodec = availablePlatformCodecs[index];
-    await AppUtil.setSettingsModel(settings);
+    await FlurecSettingsUtil.setSettingsModel(settings);
     await onRefreshData();
   }
 
-  Widget getleadingListTile(int index) {
+  Widget getLeadingListTile(int index) {
     return IconButton(
       icon: Icon(availablePlatformCodecs[index] == settings.currentEncoderCodec ? Icons.radio_button_on_rounded : Icons.radio_button_off_rounded),
       onPressed: () {},
@@ -146,12 +147,12 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
   }
 
   Future<void> onRestoreSelected(BuildContext context) async {
-    PopupUtil.showPopup(context, "Restore Encoder Settings", "Do you want to restore the default settings?", "Restore", "Cancel",
+    Hack2sPopupUtil.showPopup(context, "Restore Encoder Settings", "Do you want to restore the default settings?", "Restore", "Cancel",
         textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
         textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary), onConfirm: () async {
       Settings defaultSettings = Settings();
       settings.currentEncoderCodec = defaultSettings.currentEncoderCodec;
-      await AppUtil.setSettingsModel(settings);
+      await FlurecSettingsUtil.setSettingsModel(settings);
       await onRefreshData();
     });
   }

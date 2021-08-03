@@ -8,7 +8,6 @@ abstract class BaseScreen extends StatefulWidget {
 }
 
 abstract class BaseScreenState<T extends BaseScreen> extends State<T> with WidgetsBindingObserver {
-
   BaseScreenState();
 
   @override

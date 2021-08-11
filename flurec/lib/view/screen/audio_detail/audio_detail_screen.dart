@@ -163,7 +163,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
       alignment: Alignment.bottomLeft,
       padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
       child: Text(
-        "${Hack2sUtil.getFormattedSize(Hack2sFileUtil.getFileStatByFilePath(filePath).size)}",
+        "${Hack2sUtil.getFormattedFileSize(Hack2sFileUtil.getFileStatByFilePath(filePath).size)}",
         maxLines: 1,
         textAlign: TextAlign.end,
         overflow: TextOverflow.ellipsis,
@@ -180,7 +180,8 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
           separatorTime: ":",
           separatorDateTime: " ",
           includeMS: false,
-          replaceDateByTodayOrYesterday: true,
+          replaceDateByToday: true,
+          replaceDateByYesterday: true,
         )}",
         maxLines: 1,
         textAlign: TextAlign.end,

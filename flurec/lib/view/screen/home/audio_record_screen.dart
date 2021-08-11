@@ -50,8 +50,8 @@ class _AudioRecordScreenState extends BaseScreenState<AudioRecordScreen> {
   Widget build(BuildContext context) {
     Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_PRIMARY_LIGHT ${FlurecConstant.COLOR_PRIMARY_LIGHT.toHex()}");
     Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_PRIMARY_DARK ${FlurecConstant.COLOR_PRIMARY_DARK.toHex()}");
-    Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_ACCENT_LIGHT ${FlurecConstant.COLOR_ACCENT_LIGHT.toHex()}");
-    Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_ACCENT_DARK ${FlurecConstant.COLOR_ACCENT_DARK.toHex()}");
+    Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_SECONDARY_LIGHT ${FlurecConstant.COLOR_SECONDARY_LIGHT.toHex()}");
+    Hack2sDebugUtil.log("$FlurecConstant.LOG_TAG", "COLOR_SECONDARY_DARK ${FlurecConstant.COLOR_SECONDARY_DARK.toHex()}");
     return WillPopScope(
       onWillPop: () => Future(() {
         onStopSelected();

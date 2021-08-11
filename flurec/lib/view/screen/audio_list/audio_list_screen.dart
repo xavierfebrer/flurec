@@ -223,7 +223,7 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
                         )
                       : null,
                   selected: isItemSelected,
-                  selectedTileColor: FlurecConstant.COLOR_ACCENT,
+                  selectedTileColor: FlurecConstant.COLOR_SECONDARY,
                   onTap: () async {
                     await onItemSelected(files, index);
                   },
@@ -338,13 +338,14 @@ class _AudioListScreenState extends BaseScreenState<AudioListScreen> with Ticker
     FileStat fileStat = Hack2sFileUtil.getFileStat(file);
     String paddingStart = "  ";
     String paddingBetween = "   ";
-    return "$paddingStart${Hack2sUtil.getFormattedSize(fileStat.size)}$paddingBetween${Hack2sUtil.getFormattedDateTime(
+    return "$paddingStart${Hack2sUtil.getFormattedFileSize(fileStat.size)}$paddingBetween${Hack2sUtil.getFormattedDateTime(
       fileStat.changed,
       separatorDate: "/",
       separatorTime: ":",
       separatorDateTime: " ",
       includeMS: false,
-      replaceDateByTodayOrYesterday: true,
+      replaceDateByToday: true,
+      replaceDateByYesterday: true,
     )}";
   }
 }

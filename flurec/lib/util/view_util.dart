@@ -71,8 +71,8 @@ class FlurecViewUtil {
         ? FlurecConstant.COLOR_PRIMARY
         : FlurecConstant.COLOR_PRIMARY_LIGHT
         : interacted
-        ? FlurecConstant.COLOR_ACCENT_DARK
-        : FlurecConstant.COLOR_ACCENT)
+        ? FlurecConstant.COLOR_SECONDARY_DARK
+        : FlurecConstant.COLOR_SECONDARY)
         .withOpacity(opacity);
   }
 
@@ -93,8 +93,8 @@ class FlurecViewUtil {
         ? FlurecConstant.COLOR_PRIMARY
         : FlurecConstant.COLOR_PRIMARY_LIGHT
         : interacted
-        ? FlurecConstant.COLOR_ACCENT_DARK
-        : FlurecConstant.COLOR_ACCENT)
+        ? FlurecConstant.COLOR_SECONDARY_DARK
+        : FlurecConstant.COLOR_SECONDARY)
         .withOpacity(opacity);
   }
 
@@ -104,8 +104,8 @@ class FlurecViewUtil {
         ? FlurecConstant.COLOR_PRIMARY_DARK
         : FlurecConstant.COLOR_PRIMARY
         : interacted
-        ? FlurecConstant.COLOR_ACCENT_DARK
-        : FlurecConstant.COLOR_ACCENT)
+        ? FlurecConstant.COLOR_SECONDARY_DARK
+        : FlurecConstant.COLOR_SECONDARY)
         .withOpacity(opacity);
   }
 

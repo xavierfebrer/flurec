@@ -1,10 +1,14 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flurec/model/settings.dart';
+import 'package:flurec/domain/model/settings.dart';
+import 'package:flurec/presenter/audio_detail_state_presenter.dart';
+import 'package:flurec/ui/model/play_state.dart';
+import 'package:flurec/ui/model/play_state_info.dart';
+import 'package:flurec/ui/navigation/flurec_navigator.dart';
+import 'package:flurec/ui/view/audio_detail_view.dart';
+import 'package:flurec/ui/view/state/audio_detail_view_state.dart';
 import 'package:flurec/util/constant.dart';
 import 'package:flurec/util/settings_util.dart';
-import 'package:flurec/util/view_util.dart';
-import 'package:flurec/view/navigation/flurec_navigator.dart';
-import 'package:flurec/view/screen/base_screen.dart';
+import 'package:flurec/ui/view/util/view_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -14,43 +18,34 @@ import 'package:hack2s_flutter_util/util/file_util.dart';
 import 'package:hack2s_flutter_util/util/popup_util.dart';
 import 'package:hack2s_flutter_util/util/share_util.dart';
 import 'package:hack2s_flutter_util/util/util.dart';
+import 'package:hack2s_flutter_util/view/screen/base_screen.dart';
 
-class AudioDetailScreen extends BaseScreen {
+class AudioDetailScreen extends BaseScreen<AudioDetailView, AudioDetailViewState> implements AudioDetailView {
   final String filePath;
 
   AudioDetailScreen(this.filePath, {Key? key}) : super(key: key);
 
   @override
-  _AudioDetailScreenState createState() => _AudioDetailScreenState(filePath);
+  AudioDetailScreenState createState() => AudioDetailScreenState(this, filePath);
 }
 
-enum PlayState {
-  NOT_INIT,
-  INIT,
-  PLAYING,
-}
-
-class PlayStateInfo {
-  PlayState state;
-  String info;
-
-  PlayStateInfo(this.state, this.info);
-}
-
-class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
+class AudioDetailScreenState extends BaseScreenState<AudioDetailView, AudioDetailViewState, AudioDetailStatePresenter, AudioDetailScreen>
+    implements AudioDetailViewState {
   final String filePath;
-  late PlayStateInfo playStateInfo;
+  late PlayStateInfo stateInfo;
   FlutterSoundPlayer? player;
   late String newEditNameText;
   late Settings settings;
   late bool playedFirstTime;
 
-  _AudioDetailScreenState(this.filePath) : super();
+  AudioDetailScreenState(AudioDetailScreen screen, this.filePath) : super(screen) {
+    presenter = AudioDetailStatePresenterImpl(this.screen, this);
+  }
 
   @override
   void initState() {
     super.initState();
-    playStateInfo = PlayStateInfo(PlayState.NOT_INIT, "");
+    stateInfo = PlayStateInfo(PlayState.NOT_INIT, "");
     player = FlutterSoundPlayer();
     newEditNameText = "";
     playedFirstTime = false;
@@ -90,7 +85,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
           Icons.share_rounded,
         ),
         onPressed: () {
-          onShareSelected(context);
+          onShareSelected();
         },
       ));
     }
@@ -123,21 +118,20 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
 
   Widget getBody() {
     return SafeArea(
-      child: Container(
-        child: getBodyWithoutData(),
-      ),
+      child: getBodyContent(),
     );
   }
 
-  Widget getBodyWithoutData() {
-    return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+  Widget getBodyContent() {
+    return Container(); // TODO
+    /* TODO FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       if (!playedFirstTime && settings.autoPlayWhenVisitingDetail) {
         playedFirstTime = true;
         onPlaySelected();
       }
       return getBodyWithData();
-    });
+    });*/
   }
 
   Widget getBodyWithData() {
@@ -157,7 +151,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     widgetsBody.add(Container(
       alignment: Alignment.bottomCenter,
       padding: EdgeInsets.fromLTRB(FlurecConstant.PADDING_IN_VIEW, FlurecConstant.PADDING_IN_VIEW, FlurecConstant.PADDING_IN_VIEW, 50),
-      child: AutoSizeText("${playStateInfo.info}"),
+      child: AutoSizeText("${stateInfo.info}"),
     ));
     widgetsBody.add(Container(
       alignment: Alignment.bottomLeft,
@@ -189,14 +183,14 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
         style: TextStyle(color: FlurecConstant.COLOR_TEXT_DARK_2, fontStyle: FontStyle.italic),
       ),
     ));
-    if (playStateInfo.state == PlayState.INIT) {
+    if (stateInfo.state == PlayState.INIT) {
       widgetsBody.add(getPlayButton());
-    } else if (playStateInfo.state == PlayState.PLAYING) {
+    } else if (stateInfo.state == PlayState.PLAYING) {
       widgetsBody.add(getStopButton());
     }
-    if (playStateInfo.state == PlayState.INIT) {
+    if (stateInfo.state == PlayState.INIT) {
       widgetsBody.add(getPlayButton());
-    } else if (playStateInfo.state == PlayState.PLAYING) {
+    } else if (stateInfo.state == PlayState.PLAYING) {
       widgetsBody.add(getStopButton());
     }
     return Stack(
@@ -246,7 +240,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       onResume();
@@ -276,7 +270,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     player = FlutterSoundPlayer();
     if (await Hack2sAudioPlayUtil.openAudioSession(player!)) {
       setState(() {
-        playStateInfo = PlayStateInfo(PlayState.INIT, "");
+        stateInfo = PlayStateInfo(PlayState.INIT, "");
       });
       return true;
     } else {
@@ -310,7 +304,7 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     });
     if (duration != null) {
       setState(() {
-        playStateInfo = PlayStateInfo(PlayState.PLAYING, "");
+        stateInfo = PlayStateInfo(PlayState.PLAYING, "");
       });
     } else {
       onFailedToStartPlayer("Failed to play sound.");
@@ -321,24 +315,24 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     bool result = await Hack2sAudioPlayUtil.stopPlayer(player!);
     if (result) {
       setState(() {
-        playStateInfo = PlayStateInfo(PlayState.INIT, "");
+        stateInfo = PlayStateInfo(PlayState.INIT, "");
       });
     } else {
       setState(() {
-        playStateInfo = PlayStateInfo(PlayState.INIT, "Error");
+        stateInfo = PlayStateInfo(PlayState.INIT, "Error");
       });
     }
   }
 
   Future<void> onFailedToOpenPlayer() async {
     setState(() {
-      playStateInfo = PlayStateInfo(PlayState.NOT_INIT, "Error");
+      stateInfo = PlayStateInfo(PlayState.NOT_INIT, "Error");
     });
   }
 
   Future<void> onFailedToStartPlayer(String message) async {
     setState(() {
-      playStateInfo = PlayStateInfo(PlayState.INIT, message);
+      stateInfo = PlayStateInfo(PlayState.INIT, message);
     });
   }
 
@@ -347,9 +341,9 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
     await onRenameStart(context);
   }
 
-  Future<void> onShareSelected(BuildContext context) async {
+  Future<void> onShareSelected() async {
     await onStopSelected();
-    await Hack2sShareUtil.shareFile(context, this.filePath);
+    await Hack2sShareUtil.shareFile(this.filePath);
   }
 
   Future<void> onDeleteSelected(BuildContext context) async {
@@ -358,12 +352,14 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
       if (await Hack2sFileUtil.deleteFileByPath(filePath)) {
         Navigator.of(context).pop();
         if (settings.showDeleteSuccessInfo) {
-          Hack2sPopupUtil.showPopup(context, "File deleted", "The file ${Hack2sFileUtil.getNameByPath(filePath)} has been deleted.", "Ok", null,
+          Hack2sPopupUtil.showPopup(
+              context, "File deleted", "The file ${Hack2sFileUtil.getNameByPath(filePath)} has been deleted.", "Ok", null,
               textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
               textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
         }
       } else {
-        Hack2sPopupUtil.showPopup(context, "Delete Error", "Failed to delete the file ${Hack2sFileUtil.getNameByPath(filePath)}.", "Ok", null,
+        Hack2sPopupUtil.showPopup(
+            context, "Delete Error", "Failed to delete the file ${Hack2sFileUtil.getNameByPath(filePath)}.", "Ok", null,
             textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
             textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
       }
@@ -417,8 +413,12 @@ class _AudioDetailScreenState extends BaseScreenState<AudioDetailScreen> {
         bool renamed = await Hack2sFileUtil.renameFileByFilePath(filePath, newFilePath);
         if (renamed) {
           if (settings.showRenameSuccessInfoFiles) {
-            await Hack2sPopupUtil.showPopup(context, "File ${renamed ? "" : "not"}renamed",
-                "Renamed the file:\n${Hack2sFileUtil.getNameByPath(filePath)}\nto:\n${Hack2sFileUtil.getNameByPath(newFilePath)}", "Ok", null,
+            await Hack2sPopupUtil.showPopup(
+                context,
+                "File ${renamed ? "" : "not"}renamed",
+                "Renamed the file:\n${Hack2sFileUtil.getNameByPath(filePath)}\nto:\n${Hack2sFileUtil.getNameByPath(newFilePath)}",
+                "Ok",
+                null,
                 textStyleConfirmButtonText: TextStyle(color: Theme.of(context).primaryColorDark),
                 textStyleCancelButtonText: TextStyle(color: Theme.of(context).colorScheme.secondary));
           }

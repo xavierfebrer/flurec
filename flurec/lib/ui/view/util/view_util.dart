@@ -1,8 +1,27 @@
+import 'dart:io';
+
 import 'package:flurec/util/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hack2s_flutter_util/util/file_util.dart';
+import 'package:hack2s_flutter_util/util/util.dart';
 
 class FlurecViewUtil {
+  static String getFileSubtitle(File file) {
+    FileStat fileStat = Hack2sFileUtil.getFileStat(file);
+    String paddingStart = "  ";
+    String paddingBetween = "   ";
+    return "$paddingStart${Hack2sUtil.getFormattedFileSize(fileStat.size)}$paddingBetween${Hack2sUtil.getFormattedDateTime(
+      fileStat.changed,
+      separatorDate: "/",
+      separatorTime: ":",
+      separatorDateTime: " ",
+      includeMS: false,
+      replaceDateByToday: true,
+      replaceDateByYesterday: true,
+    )}";
+  }
+
   static ButtonStyle getPlayerButtonStyle(bool active) {
     return ButtonStyle(
       enableFeedback: false,
@@ -67,65 +86,82 @@ class FlurecViewUtil {
 
   static Color getForegroundColors(bool active, bool interacted, {double opacity = 1.0}) {
     return (active
-        ? interacted
-        ? FlurecConstant.COLOR_PRIMARY
-        : FlurecConstant.COLOR_PRIMARY_LIGHT
-        : interacted
-        ? FlurecConstant.COLOR_SECONDARY_DARK
-        : FlurecConstant.COLOR_SECONDARY)
+            ? interacted
+                ? FlurecConstant.COLOR_PRIMARY
+                : FlurecConstant.COLOR_PRIMARY_LIGHT
+            : interacted
+                ? FlurecConstant.COLOR_SECONDARY_DARK
+                : FlurecConstant.COLOR_SECONDARY)
         .withOpacity(opacity);
   }
 
   static Color getBackgroundColors(bool active, bool interacted, {double opacity = 1.0}) {
     return (active
-        ? interacted
-        ? FlurecConstant.COLOR_PRIMARY_DARK
-        : FlurecConstant.COLOR_PRIMARY
-        : interacted
-        ? FlurecConstant.COLOR_PRIMARY_LIGHT
-        : FlurecConstant.COLOR_PRIMARY_LIGHT)
+            ? interacted
+                ? FlurecConstant.COLOR_PRIMARY_DARK
+                : FlurecConstant.COLOR_PRIMARY
+            : interacted
+                ? FlurecConstant.COLOR_PRIMARY_LIGHT
+                : FlurecConstant.COLOR_PRIMARY_LIGHT)
         .withOpacity(opacity);
   }
 
   static Color getBorderColors(bool active, bool interacted, {double opacity = 1.0}) {
     return (active
-        ? interacted
-        ? FlurecConstant.COLOR_PRIMARY
-        : FlurecConstant.COLOR_PRIMARY_LIGHT
-        : interacted
-        ? FlurecConstant.COLOR_SECONDARY_DARK
-        : FlurecConstant.COLOR_SECONDARY)
+            ? interacted
+                ? FlurecConstant.COLOR_PRIMARY
+                : FlurecConstant.COLOR_PRIMARY_LIGHT
+            : interacted
+                ? FlurecConstant.COLOR_SECONDARY_DARK
+                : FlurecConstant.COLOR_SECONDARY)
         .withOpacity(opacity);
   }
 
   static Color getShadowColors(bool active, bool interacted, {double opacity = 1.0}) {
     return (active
-        ? interacted
-        ? FlurecConstant.COLOR_PRIMARY_DARK
-        : FlurecConstant.COLOR_PRIMARY
-        : interacted
-        ? FlurecConstant.COLOR_SECONDARY_DARK
-        : FlurecConstant.COLOR_SECONDARY)
+            ? interacted
+                ? FlurecConstant.COLOR_PRIMARY_DARK
+                : FlurecConstant.COLOR_PRIMARY
+            : interacted
+                ? FlurecConstant.COLOR_SECONDARY_DARK
+                : FlurecConstant.COLOR_SECONDARY)
         .withOpacity(opacity);
   }
 
-  static Widget getLoadingWidget<T>(Future<T> futureToLoad,
-      {T? initialData, LoadingActionEmpty<T>? onLoadEmpty, LoadingActionData<T>? onLoadData, LoadingActionError<T>? onLoadError}) {
-    return FutureBuilder<T>(
-      initialData: initialData,
-      future: futureToLoad,
-      builder: (BuildContext context, AsyncSnapshot<T> snapshot) {
-        if (snapshot.hasError) {
-          return onLoadError != null ? onLoadError(context, snapshot.error) : Center(child: Text("Error"));
-        } else if (snapshot.hasData && snapshot.data != null) {
-          return onLoadData != null ? onLoadData(context, snapshot.data!, snapshot.connectionState != ConnectionState.done) : Center(child: Text("${snapshot.data}"));
-        }
-        return onLoadEmpty != null ? onLoadEmpty(context) : Center(child: CircularProgressIndicator());
-      },
-    );
-  }
-}
+  static Widget getLoadingWidget() => Center(child: CircularProgressIndicator());
 
-typedef LoadingActionEmpty<T> = Widget Function(BuildContext context);
-typedef LoadingActionData<T> = Widget Function(BuildContext context, T data, bool isInitialData);
-typedef LoadingActionError<T> = Widget Function(BuildContext context, Object? error);
+  static Widget getRecordStartButton(VoidCallback? onPressed) => Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
+        child: SizedBox(
+          width: FlurecConstant.SIZE_BUTTON_RECORD,
+          height: FlurecConstant.SIZE_BUTTON_RECORD,
+          child: OutlinedButton(
+              style: FlurecViewUtil.getPlayerButtonStyle(false),
+              child: Icon(
+                Icons.mic_rounded,
+                size: 96.0,
+              ),
+              onPressed: () {
+                if (onPressed != null) onPressed();
+              }),
+        ),
+      );
+
+  static Widget getRecordStopButton(VoidCallback? onPressed) => Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
+      child: SizedBox(
+        width: FlurecConstant.SIZE_BUTTON_RECORD,
+        height: FlurecConstant.SIZE_BUTTON_RECORD,
+        child: OutlinedButton(
+            style: FlurecViewUtil.getPlayerButtonStyle(true),
+            child: Icon(
+              Icons.stop_rounded,
+              size: 96.0,
+            ),
+            onPressed: () {
+              if (onPressed != null) onPressed();
+            }),
+      ));
+}

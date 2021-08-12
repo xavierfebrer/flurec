@@ -1,12 +1,11 @@
+import 'package:flurec/di/locator.dart';
+import 'package:flurec/ui/screen/audio_record_screen.dart';
 import 'package:flurec/util/constant.dart';
-import 'package:flurec/view/screen/home/audio_record_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hack2s_flutter_util/util/app_data_provider.dart';
 import 'package:hack2s_flutter_util/util/app_util.dart';
 import 'package:hack2s_flutter_util/view/app/base_app.dart';
-
-import 'di/locator.dart';
 
 Future<void> main() async {
   await Hack2sAppUtil.runApplication([DeviceOrientation.portraitUp], FlurecAppDataProvider(), () async {

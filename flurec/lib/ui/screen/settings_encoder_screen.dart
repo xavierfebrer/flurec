@@ -1,28 +1,36 @@
-import 'package:flurec/model/settings.dart';
+import 'package:flurec/domain/model/settings.dart';
+import 'package:flurec/presenter/settings_encoder_state_presenter.dart.dart';
+import 'package:flurec/ui/view/settings_encoder_view.dart';
+import 'package:flurec/ui/view/state/settings_encoder_view_state.dart';
 import 'package:flurec/util/constant.dart';
 import 'package:flurec/util/settings_util.dart';
-import 'package:flurec/util/view_util.dart';
-import 'package:flurec/view/screen/base_screen.dart';
+import 'package:flurec/ui/view/util/view_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:hack2s_flutter_util/util/audio_util.dart';
 import 'package:hack2s_flutter_util/util/popup_util.dart';
+import 'package:hack2s_flutter_util/view/screen/base_screen.dart';
 
-class SettingsEncoderScreen extends BaseScreen {
+class SettingsEncoderScreen extends BaseScreen<SettingsEncoderView, SettingsEncoderViewState> implements SettingsEncoderView {
   @override
-  _SettingsEncoderScreenState createState() => _SettingsEncoderScreenState();
+  SettingsEncoderScreenState createState() => SettingsEncoderScreenState(this);
 }
 
-class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen> {
+class SettingsEncoderScreenState
+    extends BaseScreenState<SettingsEncoderView, SettingsEncoderViewState, SettingsEncoderStatePresenter, SettingsEncoderScreen>
+    implements SettingsEncoderViewState {
   late Settings settings;
   late List<Codec> availablePlatformCodecs;
+
+  SettingsEncoderScreenState(SettingsEncoderScreen screen) : super(screen) {
+    presenter = SettingsEncoderStatePresenterImpl(this.screen, this);
+  }
 
   @override
   void initState() {
     super.initState();
     availablePlatformCodecs = [];
-    WidgetsBinding.instance!.addPostFrameCallback((_) {});
   }
 
   @override
@@ -73,17 +81,16 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
 
   Widget getBody() {
     return SafeArea(
-      child: Container(
-        child: getBodyWithoutData(),
-      ),
+      child: getBodyContent(),
     );
   }
 
-  Widget getBodyWithoutData() {
-    return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+  Widget getBodyContent() {
+    return Container(); // TODO
+    /* TODO FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       return getBodyWithData();
-    });
+    });*/
   }
 
   Widget getBodyWithData() {
@@ -119,7 +126,7 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
     onRefreshData();
   }
@@ -141,7 +148,8 @@ class _SettingsEncoderScreenState extends BaseScreenState<SettingsEncoderScreen>
 
   Widget getLeadingListTile(int index) {
     return IconButton(
-      icon: Icon(availablePlatformCodecs[index] == settings.currentEncoderCodec ? Icons.radio_button_on_rounded : Icons.radio_button_off_rounded),
+      icon: Icon(
+          availablePlatformCodecs[index] == settings.currentEncoderCodec ? Icons.radio_button_on_rounded : Icons.radio_button_off_rounded),
       onPressed: () {},
     );
   }

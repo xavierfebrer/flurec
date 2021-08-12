@@ -1,4 +1,4 @@
-import 'package:flurec/model/settings.dart';
+import 'package:flurec/domain/model/settings.dart';
 import 'package:flurec/util/constant.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,8 +17,8 @@ class FlurecSettingsUtil {
           prefs.getBool(FlurecConstant.PREFS_KEY_SHOW_CONFIRMATION_DELETE_FILES) ?? FlurecConstant.DEFAULT_SHOW_CONFIRMATION_DELETE_FILES,
       showConfirmationRenameFiles:
           prefs.getBool(FlurecConstant.PREFS_KEY_SHOW_CONFIRMATION_RENAME_FILES) ?? FlurecConstant.DEFAULT_SHOW_CONFIRMATION_RENAME_FILES,
-      currentEncoderCodec:
-          Codec.values[prefs.getInt(FlurecConstant.PREFS_KEY_CURRENT_ENCODER_CODEC_INDEX) ?? FlurecConstant.DEFAULT_CURRENT_ENCODER_CODEC_INDEX.index],
+      currentEncoderCodec: Codec.values[
+          prefs.getInt(FlurecConstant.PREFS_KEY_CURRENT_ENCODER_CODEC_INDEX) ?? FlurecConstant.DEFAULT_CURRENT_ENCODER_CODEC_INDEX.index],
     );
     return settings;
   }

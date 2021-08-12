@@ -1,26 +1,28 @@
-import 'package:flurec/model/settings.dart';
+import 'package:flurec/domain/model/settings.dart';
+import 'package:flurec/presenter/settings_view_state_presenter.dart.dart';
+import 'package:flurec/ui/navigation/flurec_navigator.dart';
+import 'package:flurec/ui/view/settings_view.dart';
+import 'package:flurec/ui/view/state/settings_view_state.dart';
 import 'package:flurec/util/constant.dart';
 import 'package:flurec/util/settings_util.dart';
-import 'package:flurec/util/view_util.dart';
-import 'package:flurec/view/navigation/flurec_navigator.dart';
-import 'package:flurec/view/screen/base_screen.dart';
+import 'package:flurec/ui/view/util/view_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hack2s_flutter_util/util/audio_util.dart';
 import 'package:hack2s_flutter_util/util/popup_util.dart';
+import 'package:hack2s_flutter_util/view/screen/base_screen.dart';
 
-class SettingsScreen extends BaseScreen {
+class SettingsScreen extends BaseScreen<SettingsView, SettingsViewState> implements SettingsView {
   @override
-  _SettingsScreenState createState() => _SettingsScreenState();
+  SettingsScreenState createState() => SettingsScreenState(this);
 }
 
-class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
+class SettingsScreenState extends BaseScreenState<SettingsView, SettingsViewState, SettingsStatePresenter, SettingsScreen>
+    implements SettingsViewState {
   late Settings settings;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {});
+  SettingsScreenState(SettingsScreen screen) : super(screen) {
+    presenter = SettingsStatePresenterImpl(this.screen, this);
   }
 
   @override
@@ -71,17 +73,16 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
 
   Widget getBody() {
     return SafeArea(
-      child: Container(
-        child: getBodyWithoutData(),
-      ),
+      child: getBodyContent(),
     );
   }
 
-  Widget getBodyWithoutData() {
-    return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
+  Widget getBodyContent() {
+    return Container(); // TODO
+    /* TODO return FlurecViewUtil.getLoadingWidget<Settings>(FlurecSettingsUtil.getSettingsModel(), onLoadData: (context, data, isInitialData) {
       settings = data;
       return getBodyWithData();
-    });
+    });*/
   }
 
   Widget getBodyWithData() {
@@ -106,16 +107,6 @@ class _SettingsScreenState extends BaseScreenState<SettingsScreen> {
         },
       ),
     );
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   Future<void> onRefreshData() async {

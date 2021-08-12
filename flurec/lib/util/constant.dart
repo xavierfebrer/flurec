@@ -8,9 +8,11 @@ class FlurecConstant {
   static const String LOG_TAG = APP_NAME + " Log";
   static const Color COLOR_PRIMARY = Color(0xFFF44336);
   static const Color COLOR_SECONDARY = Color(0xFF03A9F4);
+
   static Color COLOR_TEXT([bool darkMode = false]) => !darkMode ? Color(0xFF212121) : Color(0xFFFFFFFF);
+
   static Color COLOR_TEXT_2([bool darkMode = false]) => !darkMode ? Color(0xFF757575) : Color(0xFFD1D1D1);
-  static const double TEXT_PRIMARY_FONT_SIZE = 18;
+  static const double TEXT_PRIMARY_FONT_SIZE = 20;
   static const double TEXT_SECONDARY_FONT_SIZE = 16;
   static const FontWeight TEXT_FONT_WEIGHT_LIGHT = FontWeight.w300;
   static const FontWeight TEXT_FONT_WEIGHT = FontWeight.w400;

@@ -11,7 +11,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:hack2s_flutter_util/presenter/presenter.dart';
 import 'package:hack2s_flutter_util/util/app_data_provider.dart';
 import 'package:hack2s_flutter_util/util/audio_util.dart';
-import 'package:hack2s_flutter_util/util/debug_util.dart';
+import 'package:hack2s_flutter_util/util/constant.dart';
 
 abstract class AudioRecordStatePresenter extends Presenter<AudioRecordView, AudioRecordViewState> {
   AudioRecordStatePresenter(AudioRecordView view, AudioRecordViewState viewState) : super(view, viewState);
@@ -20,9 +20,9 @@ abstract class AudioRecordStatePresenter extends Presenter<AudioRecordView, Audi
 
   RecordStateInfo get stateInfo;
 
-  Future<void> onStartRecordSelected();
+  Future<void> onRecordStartSelected();
 
-  Future<void> onStopRecordSelected();
+  Future<void> onRecordStopSelected();
 
   Future<void> onShowRecordingsSelected();
 
@@ -33,13 +33,13 @@ class AudioRecordStatePresenterImpl extends AudioRecordStatePresenter {
   AudioFileRepository _audioFileRepository;
   AudioRecordRepository _audioRecordRepository;
   late Settings _settings;
-  late RecordStateInfo _recordStateInfo;
+  late RecordStateInfo _stateInfo;
 
   AudioRecordStatePresenterImpl(
       AudioRecordView view, AudioRecordViewState viewState, this._audioFileRepository, this._audioRecordRepository)
       : super(view, viewState) {
     _settings = Settings();
-    _recordStateInfo = RecordStateInfo(RecordState.NOT_INIT, "Start Ok");
+    _stateInfo = RecordStateInfo(RecordState.NOT_INIT);
   }
 
   @override
@@ -82,32 +82,32 @@ class AudioRecordStatePresenterImpl extends AudioRecordStatePresenter {
   Settings get settings => _settings;
 
   @override
-  RecordStateInfo get stateInfo => _recordStateInfo;
+  RecordStateInfo get stateInfo => _stateInfo;
 
   @override
-  Future<void> onStartRecordSelected() async => await _startRecorder();
+  Future<void> onRecordStartSelected() async => await _startRecorder();
 
   @override
-  Future<void> onStopRecordSelected() async => await _stopRecorder(true);
+  Future<void> onRecordStopSelected() async => await _stopRecorder(true);
 
   @override
   Future<void> onShowRecordingsSelected() async {
-    await _stopRecorder(false);
+    await _disposeRecorder();
     await viewState.goToShowRecordings();
   }
 
   @override
   Future<void> onSettingsSelected() async {
-    await _stopRecorder(false);
+    await _disposeRecorder();
     await viewState.goToSettings();
   }
 
   Future<void> _initRecorder() async {
     await _disposeRecorder();
     if (await _audioRecordRepository.initializeRecorder()) {
-      _recordStateInfo = RecordStateInfo(RecordState.INIT, "");
+      _stateInfo = RecordStateInfo(RecordState.INIT);
     } else {
-      _recordStateInfo = RecordStateInfo(RecordState.NOT_INIT, "Error");
+      _stateInfo = RecordStateInfo(RecordState.NOT_INIT, FlurecConstant.TEXT_ERROR);
     }
     await _onRefresh();
   }
@@ -121,8 +121,8 @@ class AudioRecordStatePresenterImpl extends AudioRecordStatePresenter {
     Codec codec = settings.currentEncoderCodec;
     var availablePlatformCodecs = await Hack2sAudioUtil.getAvailableEncoderCodecs(viewState.getTargetPlatform());
     if (!(availablePlatformCodecs).contains(codec)) {
-      _recordStateInfo = RecordStateInfo(RecordState.INIT,
-          "The selected codec: $codec, is not supported. Supported encoder codecs: ${availablePlatformCodecs.join(", ")}");
+      _stateInfo = RecordStateInfo(RecordState.INIT,
+          FlurecConstant.TEXT_INVALID_CODECS(codec, availablePlatformCodecs));
     } else {
       String extension = Hack2sAudioUtil.getExtensionForCodec(codec);
       String completeFilePathWithExtension = await _audioFileRepository.getNewRecordingFilePath(
@@ -131,9 +131,9 @@ class AudioRecordStatePresenterImpl extends AudioRecordStatePresenter {
           FlurecConstant.FILE_NAME_RECORDING_BASE,
           extension);
       if (await _audioRecordRepository.startRecording(codec, completeFilePathWithExtension)) {
-        _recordStateInfo = RecordStateInfo(RecordState.RECORDING, "");
+        _stateInfo = RecordStateInfo(RecordState.RECORDING);
       } else {
-        _recordStateInfo = RecordStateInfo(RecordState.INIT, "Error starting to record sound.");
+        _stateInfo = RecordStateInfo(RecordState.INIT, FlurecConstant.TEXT_ERROR_STARTING_RECORD_SOUND);
       }
     }
     await _onRefresh();
@@ -141,19 +141,19 @@ class AudioRecordStatePresenterImpl extends AudioRecordStatePresenter {
 
   Future<void> _stopRecorder(bool refresh) async {
     if (await _audioRecordRepository.stopRecording()) {
-      _recordStateInfo = RecordStateInfo(RecordState.INIT, "");
+      _stateInfo = RecordStateInfo(RecordState.INIT);
     } else {
-      _recordStateInfo = RecordStateInfo(RecordState.INIT, "Error");
+      _stateInfo = RecordStateInfo(RecordState.INIT);
     }
-    if(refresh) await _onRefresh();
+    if (refresh) await _onRefresh();
   }
 
   Future<void> _disposeRecorder() async {
     await _stopRecorder(false);
     if (await _audioRecordRepository.disposeRecorder()) {
-      _recordStateInfo = RecordStateInfo(RecordState.DISPOSED, "");
+      _stateInfo = RecordStateInfo(RecordState.DISPOSED);
     } else {
-      _recordStateInfo = RecordStateInfo(RecordState.DISPOSED, "Error");
+      _stateInfo = RecordStateInfo(RecordState.DISPOSED);
     }
   }
 }

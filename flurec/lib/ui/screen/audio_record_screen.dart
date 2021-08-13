@@ -25,26 +25,46 @@ class AudioRecordScreenState extends BaseScreenState<AudioRecordView, AudioRecor
   }
 
   @override
-  Widget build(BuildContext context) => Hack2sViewUtil.getBaseState(
+  Widget build(BuildContext context) => WillPopScope(
+      child: Hack2sViewUtil.getBaseState(
         context,
         appBar: getAppBar(),
         body: getBody(),
-      );
+      ),
+      onWillPop: () {
+        return Future(() {
+          // TODO handle back press
+          return true;
+        });
+      });
 
-  AppBar getAppBar() => Hack2sViewUtil.getAppBar(
-        context,
-        title: Hack2sAppDataProvider.appDataProvider.APP_NAME,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.list_rounded),
-            onPressed: () async => await presenter.onShowRecordingsSelected(),
-          ),
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () async => await presenter.onSettingsSelected(),
-          ),
-        ],
-      );
+  AppBar getAppBar() {
+    List<Widget> actions = [];
+    if (presenter.stateInfo.state != RecordState.RECORDING) {
+      actions.addAll(<Widget>[
+        IconButton(
+          icon: Icon(Icons.list_rounded),
+          onPressed: () async => await presenter.onShowRecordingsSelected(),
+        ),
+        IconButton(
+          icon: Icon(Icons.settings),
+          onPressed: () async => await presenter.onSettingsSelected(),
+        ),
+      ]);
+    }
+    return Hack2sViewUtil.getAppBar(
+      context,
+      title: presenter.stateInfo.state != RecordState.RECORDING
+          ? Hack2sAppDataProvider.appDataProvider.APP_NAME
+          : FlurecConstant.TEXT_RECORDING,
+      titleTextStyle: presenter.stateInfo.state == RecordState.RECORDING
+          ? Hack2sViewUtil.getAppBarTitlePrimaryTextStyle(context,
+          fontWeight: Hack2sAppDataProvider.appDataProvider.TEXT_FONT_WEIGHT_BOLD)
+          : null,
+      centerTitle: presenter.stateInfo.state == RecordState.RECORDING,
+      actions: actions,
+    );
+  }
 
   Widget getBody() => SafeArea(child: getBodyContent());
 
@@ -56,9 +76,9 @@ class AudioRecordScreenState extends BaseScreenState<AudioRecordView, AudioRecor
       child: AutoSizeText("${presenter.stateInfo.info}"),
     ));
     if (presenter.stateInfo.state == RecordState.INIT) {
-      widgetsBody.add(FlurecViewUtil.getRecordStartButton(() async => await presenter.onStartRecordSelected()));
+      widgetsBody.add(FlurecViewUtil.getRecordStartButton(() async => await presenter.onRecordStartSelected()));
     } else if (presenter.stateInfo.state == RecordState.RECORDING) {
-      widgetsBody.add(FlurecViewUtil.getRecordStopButton(() async => await presenter.onStopRecordSelected()));
+      widgetsBody.add(FlurecViewUtil.getRecordStopButton(() async => await presenter.onRecordStopSelected()));
     } else {
       widgetsBody.add(FlurecViewUtil.getLoadingWidget());
     }

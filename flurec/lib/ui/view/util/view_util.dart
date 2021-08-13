@@ -164,4 +164,47 @@ class FlurecViewUtil {
               if (onPressed != null) onPressed();
             }),
       ));
+
+
+
+  static Widget getPlayStartButton(VoidCallback? onPressed) {
+    return Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
+      child: SizedBox(
+        width: FlurecConstant.SIZE_BUTTON_PLAY,
+        height: FlurecConstant.SIZE_BUTTON_PLAY,
+        child: OutlinedButton(
+          style: FlurecViewUtil.getPlayerButtonStyle(false),
+          child: Icon(
+            Icons.play_arrow_rounded,
+            size: 96.0,
+          ),
+          onPressed: () {
+            if (onPressed != null) onPressed();
+          },
+        ),
+      ),
+    );
+  }
+
+  static Widget getPlayStopButton(VoidCallback? onPressed) {
+    return Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(FlurecConstant.PADDING_IN_VIEW),
+        child: SizedBox(
+          width: FlurecConstant.SIZE_BUTTON_PLAY,
+          height: FlurecConstant.SIZE_BUTTON_PLAY,
+          child: OutlinedButton(
+            style: FlurecViewUtil.getPlayerButtonStyle(true),
+            child: Icon(
+              Icons.stop_rounded,
+              size: 96.0,
+            ),
+            onPressed: () {
+              if (onPressed != null) onPressed();
+            },
+          ),
+        ));
+  }
 }

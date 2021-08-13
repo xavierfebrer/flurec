@@ -20,6 +20,17 @@ class FlurecConstant {
   static const FontWeight TEXT_FONT_WEIGHT_SEMI_BOLD = FontWeight.w600;
   static const FontWeight TEXT_FONT_WEIGHT_BOLD = FontWeight.w700;
   static const double TEXT_LETTER_SPACING = -0.0;
+  static const String TEXT_RECORDING = "Recording";
+  static const String TEXT_ERROR = "Error";
+  static const String TEXT_ERROR_STARTING_RECORD_SOUND = "Error starting to record sound";
+  static const String TEXT_ERROR_STARTING_PLAY_SOUND = "Error starting to play sound";
+  static String TEXT_INVALID_CODECS(Codec codec, List<Codec> availablePlatformCodecs) =>
+      "The selected codec: $codec, is not supported. Supported encoder codecs: ${availablePlatformCodecs.join(", ")}";
+  static const String TEXT_AUDIO = "Audio";
+  static const String TEXT_LIST = "List";
+  static const String TEXT_DETAIL= "Detail";
+  static const String TEXT_AUDIO_LIST = "$TEXT_AUDIO $TEXT_LIST";
+  static const String TEXT_AUDIO_DETAIL = "$TEXT_AUDIO $TEXT_DETAIL";
 
   static final Color COLOR_PRIMARY_LIGHT = Color.lerp(COLOR_PRIMARY, Hack2sConstant.COLOR_WHITE, 0.80)!;
   static final Color COLOR_PRIMARY_DARK = Color.lerp(COLOR_PRIMARY, Hack2sConstant.COLOR_BLACK, 0.20)!;

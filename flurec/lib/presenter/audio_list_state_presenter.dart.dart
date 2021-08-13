@@ -6,10 +6,8 @@ import 'package:flurec/ui/view/audio_list_view.dart';
 import 'package:flurec/ui/view/state/audio_list_view_state.dart';
 import 'package:flurec/util/constant.dart';
 import 'package:flurec/util/settings_util.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:hack2s_flutter_util/presenter/presenter.dart';
 import 'package:hack2s_flutter_util/util/file_util.dart';
-import 'package:hack2s_flutter_util/util/share_util.dart';
 
 abstract class AudioListStatePresenter extends Presenter<AudioListView, AudioListViewState> {
   AudioListStatePresenter(AudioListView view, AudioListViewState viewState) : super(view, viewState);
@@ -18,9 +16,9 @@ abstract class AudioListStatePresenter extends Presenter<AudioListView, AudioLis
 
   FileSort get fileSort;
 
-  Future<void> onSortSelected();
+  bool get startInverted;
 
-  Future<void> onShareSelected();
+  Future<void> onSortSelected();
 
   Future<void> onItemSelected(File file);
 }
@@ -31,15 +29,15 @@ class AudioListStatePresenterImpl extends AudioListStatePresenter {
   late FileSort _fileSort;
   late Settings _settings;
 
-  AudioListStatePresenterImpl(AudioListView view, AudioListViewState viewState, this._audioFileRepository) : super(view, viewState) {}
+  AudioListStatePresenterImpl(AudioListView view, AudioListViewState viewState, this._audioFileRepository) : super(view, viewState) {
+    _files = [];
+    _fileSort = FileSort.DateDescending;
+    _settings = Settings();
+  }
 
   @override
   Future<void> onViewInit() async {
     await super.onViewInit();
-    _files = [];
-    _fileSort = FileSort.DateDescending;
-    _settings = Settings();
-    viewState.initViewRotation();
     await _onRefresh();
   }
 
@@ -64,13 +62,11 @@ class AudioListStatePresenterImpl extends AudioListStatePresenter {
   @override
   Future<void> onAppDestroy() async {
     await super.onAppDestroy();
-    await _onRefresh();
   }
 
   @override
   Future<void> onViewDispose() async {
     await super.onViewDispose();
-    await _onRefresh();
   }
 
   @override
@@ -80,6 +76,9 @@ class AudioListStatePresenterImpl extends AudioListStatePresenter {
   FileSort get fileSort => _fileSort;
 
   @override
+  bool get startInverted => true;
+
+  @override
   Future<void> onSortSelected() async {
     viewState.startViewRotation();
     _nextSort();
@@ -87,22 +86,14 @@ class AudioListStatePresenterImpl extends AudioListStatePresenter {
   }
 
   void _nextSort() {
-    if (_fileSort.index < FileSort.values.length - 1) {
-      _fileSort = FileSort.values[_fileSort.index + 1];
-    } else {
-      _fileSort = FileSort.values[0];
-    }
+    _fileSort = _fileSort.index < FileSort.values.length - 1 ? FileSort.values[_fileSort.index + 1] : FileSort.values[0];
   }
 
   Future<void> _onRefresh() async {
     _settings = await FlurecSettingsUtil.getSettingsModel();
-    _files = await _audioFileRepository.getRecordingsFiles(appFolderName, appSubFolderName);
+    _files =
+        await _audioFileRepository.getRecordingsFiles(FlurecConstant.APP_NAME, FlurecConstant.FOLDER_NAME_RECORDINGS, fileSort: fileSort);
     await viewState.onRefreshAll();
-  }
-
-  @override
-  Future<void> onShareSelected() async {
-    if (_selectedItems.isNotEmpty) await Hack2sShareUtil.shareFiles(_selectedItems);
   }
 
   @override
